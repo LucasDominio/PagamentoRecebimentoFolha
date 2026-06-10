@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Processo - PAGAMENTO / RECEBIMENTO</title>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: Segoe UI, Arial, sans-serif;
+    background: #f0f2f5;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 30px 10px;
+  }
+  .container {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+    width: 100%;
+    max-width: 780px;
+    overflow: hidden;
+  }
+  .title-bar {
+    background: #1a73e8;
+    color: #fff;
+    padding: 16px 24px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .tabs {
+    display: flex;
+    background: #e8edf5;
+    border-bottom: 2px solid #1a73e8;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 12px 20px;
+    cursor: pointer;
+    font-size: 0.93rem;
+    font-weight: 600;
+    color: #555;
+    border: none;
+    background: transparent;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+  }
+  .tab-btn.active {
+    color: #1a73e8;
+    border-bottom: 3px solid #1a73e8;
+    background: #fff;
+  }
+  .tab-btn:hover:not(.active) { background: #dce6f7; }
+  .tab-content { display: none; padding: 28px 24px 24px; }
+  .tab-content.active { display: block; }
+
+  .field-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+  .field-row label {
+    width: 80px;
+    font-size: 0.93rem;
+    color: #333;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .field-row input[type="text"] {
+    flex: 1;
+    padding: 7px 10px;
+    border: 1px solid #bbb;
+    border-radius: 5px;
+    font-size: 0.93rem;
+    color: #222;
+    background: #fafafa;
+    transition: border 0.2s;
+  }
+  .field-row input[type="text"]:focus {
+    outline: none;
+    border-color: #1a73e8;
+    background: #fff;
+  }
+  .field-row input[type="text"].has-file { border-color: #34a853; background: #f0faf3; }
+
+  .file-label {
+    display: inline-block;
+    padding: 7px 14px;
+    background: #1a73e8;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background 0.2s;
+    border: none;
+  }
+  .file-label:hover { background: #1558b0; }
+  input[type="file"] { display: none; }
+
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+  }
+  .btn-exec {
+    padding: 9px 32px;
+    background: #34a853;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.97rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-exec:hover { background: #256e38; }
+  .btn-exec:disabled { background: #aaa; cursor: not-allowed; }
+  .btn-sair {
+    padding: 9px 32px;
+    background: #e53935;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.97rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-sair:hover { background: #b71c1c; }
+
+  .status-bar {
+    margin-top: 18px;
+    min-height: 36px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.92rem;
+    display: none;
+  }
+  .status-bar.success { display: block; background: #e6f4ea; color: #256e38; border: 1px solid #a8d5b5; }
+  .status-bar.error   { display: block; background: #fdecea; color: #b71c1c; border: 1px solid #f5c6c6; }
+  .status-bar.info    { display: block; background: #e8f0fe; color: #1a73e8; border: 1px solid #aac4f7; }
+
+  .hint {
+    font-size: 0.82rem;
+    color: #888;
+    margin-top: 2px;
+    margin-left: 90px;
+    margin-bottom: 6px;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid #fff;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── Preview table (Extrair CPF/CNPJ) ── */
+  .preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 20px;
+    margin-bottom: 6px;
+  }
+  .preview-header span { font-size: 0.88rem; color: #555; font-weight: 600; }
+  .summary-badges { display: flex; gap: 8px; }
+  .badge {
+    display: inline-block;
+    border-radius: 12px;
+    padding: 3px 12px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+  .badge-cpf   { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
+  .badge-cnpj  { background: #e8f0fe; color: #1a73e8; border: 1px solid #aac4f7; }
+  .badge-total { background: #e6f4ea; color: #256e38; border: 1px solid #a8d5b5; }
+
+  .preview-wrap {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #d0d7e3;
+    border-radius: 6px;
+    display: none;
+  }
+  .preview-wrap.visible { display: block; }
+  .preview-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.87rem;
+  }
+  .preview-table thead th {
+    background: #1a73e8;
+    color: #fff;
+    padding: 8px 12px;
+    text-align: left;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+  .preview-table tbody tr:nth-child(even) { background: #f4f7fc; }
+  .preview-table tbody td {
+    padding: 6px 12px;
+    border-bottom: 1px solid #e5e9f0;
+    color: #333;
+    font-family: monospace;
+  }
+  .type-cpf  { color: #e65100; font-weight: 700; }
+  .type-cnpj { color: #1a73e8; font-weight: 700; }
+  .divider-row td {
+    background: #f0f0f0 !important;
+    color: #999 !important;
+    font-size: 0.78rem;
+    text-align: center;
+    padding: 4px !important;
+    font-family: sans-serif !important;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="title-bar">⚙️ Processo — PAGAMENTO / RECEBIMENTO</div>
+
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('pag')">PAGAMENTO</button>
+    <button class="tab-btn"        onclick="switchTab('rec')">RECEBIMENTO</button>
+    <button class="tab-btn"        onclick="switchTab('folha')">📋 FOLHA</button>
+    <button class="tab-btn"        onclick="switchTab('cnpj')">🔍 Extrair CPF/CNPJ</button>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ABA PAGAMENTO
+  ══════════════════════════════════════════════ -->
+  <div id="tab-pag" class="tab-content active">
+    <div class="field-row">
+      <label>Origem:</label>
+      <input type="text" id="pag-origem-name" placeholder="Nenhum arquivo selecionado..." readonly>
+      <label class="file-label" for="pag-origem-file">Procurar...</label>
+      <input type="file" id="pag-origem-file" accept=".txt,text/plain">
+    </div>
+    <p class="hint">Arquivo TXT de origem para PAGAMENTO.</p>
+
+    <div class="field-row">
+      <label>Destino:</label>
+      <input type="text" id="pag-destino-name" value="PAGAMENTO.txt" readonly>
+    </div>
+    <p class="hint">O arquivo será baixado automaticamente como <strong>PAGAMENTO.txt</strong>.</p>
+
+    <div class="field-row">
+      <label>Plano:</label>
+      <input type="text" id="pag-plano-name" placeholder="Nenhuma planilha selecionada..." readonly>
+      <label class="file-label" for="pag-plano-file">Procurar...</label>
+      <input type="file" id="pag-plano-file" accept=".xlsx,.xls,.xlsm">
+    </div>
+    <p class="hint">Planilha Excel: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
+
+    <div class="actions">
+      <button class="btn-exec" id="pag-exec-btn" onclick="executar('pag')">▶ Executar</button>
+      <button class="btn-sair" onclick="fechar()">✕ Sair</button>
+    </div>
+    <div class="status-bar" id="pag-status"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ABA RECEBIMENTO
+  ══════════════════════════════════════════════ -->
+  <div id="tab-rec" class="tab-content">
+    <div class="field-row">
+      <label>Origem:</label>
+      <input type="text" id="rec-origem-name" placeholder="Nenhum arquivo selecionado..." readonly>
+      <label class="file-label" for="rec-origem-file">Procurar...</label>
+      <input type="file" id="rec-origem-file" accept=".txt,text/plain">
+    </div>
+    <p class="hint">Arquivo TXT de origem para RECEBIMENTO.</p>
+
+    <div class="field-row">
+      <label>Destino:</label>
+      <input type="text" id="rec-destino-name" value="RECEBIMENTO.txt" readonly>
+    </div>
+    <p class="hint">O arquivo será baixado automaticamente como <strong>RECEBIMENTO.txt</strong>.</p>
+
+    <div class="field-row">
+      <label>Plano:</label>
+      <input type="text" id="rec-plano-name" placeholder="Nenhuma planilha selecionada..." readonly>
+      <label class="file-label" for="rec-plano-file">Procurar...</label>
+      <input type="file" id="rec-plano-file" accept=".xlsx,.xls,.xlsm">
+    </div>
+    <p class="hint">Planilha Excel: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
+
+    <div class="actions">
+      <button class="btn-exec" id="rec-exec-btn" onclick="executar('rec')">▶ Executar</button>
+      <button class="btn-sair" onclick="fechar()">✕ Sair</button>
+    </div>
+    <div class="status-bar" id="rec-status"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ABA EXTRAIR CPF/CNPJ
+  ══════════════════════════════════════════════ -->
+  <div id="tab-cnpj" class="tab-content">
+    <div class="field-row">
+      <label>Origem:</label>
+      <input type="text" id="cnpj-origem-name" placeholder="Nenhum arquivo selecionado..." readonly>
+      <label class="file-label" for="cnpj-origem-file">Procurar...</label>
+      <input type="file" id="cnpj-origem-file" accept=".txt,text/plain">
+    </div>
+    <p class="hint">Arquivo TXT de origem — colunas 74 a 87 serão extraídas.</p>
+
+    <div class="field-row">
+      <label>Destino:</label>
+      <input type="text" id="cnpj-destino-name" value="CPF_CNPJ_EXTRAIDOS.csv" readonly>
+    </div>
+    <p class="hint">CSV gerado: sem duplicatas · CPFs primeiro (ordem crescente) · depois CNPJs (ordem crescente).</p>
+
+    <div class="actions">
+      <button class="btn-exec" id="cnpj-exec-btn" onclick="executarExtrair()">▶ Executar</button>
+      <button class="btn-sair" onclick="fechar()">✕ Sair</button>
+    </div>
+    <div class="status-bar" id="cnpj-status"></div>
+
+    <div class="preview-header" id="cnpj-summary" style="display:none;">
+      <span>Pré-visualização <em>(máx. 100 registros)</em></span>
+      <div class="summary-badges">
+        <span class="badge badge-cpf"   id="badge-cpf"></span>
+        <span class="badge badge-cnpj"  id="badge-cnpj"></span>
+        <span class="badge badge-total" id="badge-total"></span>
+      </div>
+    </div>
+
+    <div class="preview-wrap" id="cnpj-preview-wrap">
+      <table class="preview-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tipo</th>
+            <th>Número (dígitos)</th>
+            <th>Formatado</th>
+          </tr>
+        </thead>
+        <tbody id="cnpj-preview-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════
+       ABA FOLHA
+  ══════════════════════════════════════════════ -->
+  <div id="tab-folha" class="tab-content">
+
+    <div class="field-row">
+      <label>Origem:</label>
+      <input type="text" id="folha-origem-name" placeholder="Nenhum arquivo selecionado..." readonly>
+      <label class="file-label" for="folha-origem-file">Procurar...</label>
+      <input type="file" id="folha-origem-file" accept=".xlsx,.xls,.xlsm">
+    </div>
+    <p class="hint">Planilha Excel de origem — leitura a partir da linha 5.</p>
+
+    <div class="field-row">
+      <label>Destino:</label>
+      <input type="text" id="folha-destino-name" value="FOLHA.txt" readonly>
+    </div>
+    <p class="hint">O arquivo será baixado automaticamente como <strong>FOLHA.txt</strong>.</p>
+
+    <div class="field-row">
+      <label>Plano:</label>
+      <input type="text" id="folha-plano-name" placeholder="Nenhum arquivo selecionado..." readonly>
+      <label class="file-label" for="folha-plano-file">Procurar...</label>
+      <input type="file" id="folha-plano-file" accept=".csv">
+    </div>
+    <p class="hint">Arquivo CSV do plano DE/PARA: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
+
+    <div class="actions">
+      <button class="btn-exec" id="folha-exec-btn" onclick="executarFolha()">▶ Executar</button>
+      <button class="btn-sair" onclick="fechar()">✕ Sair</button>
+    </div>
+    <div class="status-bar" id="folha-status"></div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// Estado global
+// ═══════════════════════════════════════════════════════════════
+const state = {
+  pag:   { origemFile: null, planoFile: null },
+  rec:   { origemFile: null, planoFile: null },
+  cnpj:  { origemFile: null },
+  folha: { origemFile: null, planoFile: null }
+};
+
+// ═══════════════════════════════════════════════════════════════
+// Troca de abas
+// ═══════════════════════════════════════════════════════════════
+function switchTab(tab) {
+  const tabs = ['pag', 'rec', 'folha', 'cnpj'];
+  document.querySelectorAll('.tab-btn').forEach((b, i) => {
+    b.classList.toggle('active', tabs[i] === tab);
+  });
+  tabs.forEach(t => {
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Bind de inputs de arquivo
+// ═══════════════════════════════════════════════════════════════
+function bindFile(inputId, nameId, stateTab, stateKey) {
+  const inp     = document.getElementById(inputId);
+  const nameBox = document.getElementById(nameId);
+  inp.addEventListener('change', () => {
+    const f = inp.files[0];
+    if (!f) return;
+    state[stateTab][stateKey] = f;
+    nameBox.value = f.name;
+    nameBox.classList.add('has-file');
+    if (stateTab === 'cnpj') resetPreview();
+  });
+}
+bindFile('pag-origem-file',   'pag-origem-name',   'pag',   'origemFile');
+bindFile('pag-plano-file',    'pag-plano-name',    'pag',   'planoFile');
+bindFile('rec-origem-file',   'rec-origem-name',   'rec',   'origemFile');
+bindFile('rec-plano-file',    'rec-plano-name',    'rec',   'planoFile');
+bindFile('cnpj-origem-file',  'cnpj-origem-name',  'cnpj',  'origemFile');
+bindFile('folha-origem-file', 'folha-origem-name', 'folha', 'origemFile');
+bindFile('folha-plano-file',  'folha-plano-name',  'folha', 'planoFile');
+
+function resetPreview() {
+  document.getElementById('cnpj-preview-wrap').classList.remove('visible');
+  document.getElementById('cnpj-preview-body').innerHTML = '';
+  document.getElementById('cnpj-summary').style.display = 'none';
+  clearStatus('cnpj');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Fechar
+// ═══════════════════════════════════════════════════════════════
+function fechar() { window.close(); }
+
+// ═══════════════════════════════════════════════════════════════
+// Status UI
+// ═══════════════════════════════════════════════════════════════
+function showStatus(tab, msg, type) {
+  const el = document.getElementById(`${tab}-status`);
+  el.className = `status-bar ${type}`;
+  el.innerHTML = msg;
+}
+function clearStatus(tab) {
+  const el = document.getElementById(`${tab}-status`);
+  el.className = 'status-bar';
+  el.innerHTML = '';
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Leitura de arquivo como ArrayBuffer
+// ═══════════════════════════════════════════════════════════════
+function readFileAsBuffer(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Falha ao ler: ' + file.name));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Leitura de arquivo como texto (para CSV)
+// ═══════════════════════════════════════════════════════════════
+function readFileAsText(file, encoding = 'utf-8') {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload  = e => resolve(e.target.result);
+    reader.onerror = () => reject(new Error('Falha ao ler: ' + file.name));
+    reader.readAsText(file, encoding);
+  });
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Helpers de bytes / texto
+// ═══════════════════════════════════════════════════════════════
+function bytesToString1252(bytes) {
+  return new TextDecoder('windows-1252').decode(bytes);
+}
+function stripUtf8Bom(bytes) {
+  if (bytes.length >= 3 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF)
+    return bytes.slice(3);
+  return bytes;
+}
+function to1252LineBytes(bytes) { return stripUtf8Bom(bytes); }
+function getSubBytes(bytes, start, end) {
+  if (!bytes || bytes.length === 0) return new Uint8Array(0);
+  if (start < 1) start = 1;
+  if (end < start) return new Uint8Array(0);
+  end = Math.min(end, bytes.length);
+  if (start > bytes.length) return new Uint8Array(0);
+  return bytes.slice(start - 1, end);
+}
+function toDigits(s) { return String(s ?? '').replace(/\D/g, ''); }
+function removeLeadingZeros(s) {
+  if (!s) return s;
+  const t = s.replace(/^0+/, '');
+  return t === '' ? '0' : t;
+}
+function aplicarDePara(valor, map) {
+  const k = String(valor ?? '').trim();
+  return (k && map.has(k)) ? map.get(k) : valor;
+}
+function formatDataDDMMAAAA(raw) {
+  if (!raw || !String(raw).trim()) return '';
+  const d = String(raw).replace(/\D/g, '');
+  if (d.length < 8) return String(raw);
+  const s = d.substring(0, 8);
+  return `${s.substring(0,2)}/${s.substring(2,4)}/${s.substring(4,8)}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// ★ NOVO — Verifica se uma linha (Uint8Array) começa com "LC"
+//
+// Por que bytes e não string?
+//   Os arquivos TXT podem ser Windows-1252. Trabalhar direto nos
+//   bytes garante que a checagem ocorra ANTES de qualquer decode,
+//   evitando problemas com BOM ou encoding inesperado.
+//   'L' = 0x4C  |  'C' = 0x43
+// ═══════════════════════════════════════════════════════════════
+function linhaComecaComLC(lineBytes) {
+  if (!lineBytes || lineBytes.length < 2) return false;
+  return lineBytes[0] === 0x4C && lineBytes[1] === 0x43; // 'L' e 'C'
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Converte serial do Excel para DD/MM/AAAA
+// ═══════════════════════════════════════════════════════════════
+function excelSerialToDate(serial) {
+  if (!serial || isNaN(serial)) return '';
+  const utc_days  = Math.floor(serial - 25569);
+  const utc_value = utc_days * 86400 * 1000;
+  const date      = new Date(utc_value);
+  const dd   = String(date.getUTCDate()).padStart(2, '0');
+  const mm   = String(date.getUTCMonth() + 1).padStart(2, '0');
+  const yyyy = date.getUTCFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Formata qualquer valor de data para DD/MM/AAAA
+// ═══════════════════════════════════════════════════════════════
+function formatarData(valor) {
+  if (valor === null || valor === undefined || valor === '') return '';
+  if (typeof valor === 'number') return excelSerialToDate(valor);
+  if (valor instanceof Date) {
+    const dd   = String(valor.getUTCDate()).padStart(2, '0');
+    const mm   = String(valor.getUTCMonth() + 1).padStart(2, '0');
+    const yyyy = valor.getUTCFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+  }
+  const s = String(valor).trim();
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
+  const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
+  const digits = s.replace(/\D/g, '');
+  if (digits.length === 8)
+    return `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4,8)}`;
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Formata valor numérico para padrão BR (vírgula, 2 decimais)
+// ═══════════════════════════════════════════════════════════════
+function formatarValorBR(valor) {
+  if (valor === null || valor === undefined || valor === '') return '';
+  if (typeof valor === 'number') return valor.toFixed(2).replace('.', ',');
+  const s = String(valor).trim();
+  if (s === '') return '';
+  if (s.includes(',')) {
+    const partes  = s.replace(/\./g, '').split(',');
+    const inteiro = partes[0];
+    const decimal = (partes[1] ?? '').padEnd(2, '0').slice(0, 2);
+    return `${inteiro},${decimal}`;
+  }
+  if (s.includes('.')) {
+    const num = parseFloat(s);
+    if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
+  }
+  const num = parseFloat(s);
+  if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
+  return s;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Separação de linhas por CRLF (Uint8Array)
+// ═══════════════════════════════════════════════════════════════
+function splitLinesBytesCRLF(allBytes) {
+  const lines = [];
+  let start = 0;
+  for (let i = 0; i < allBytes.length; i++) {
+    if (i < allBytes.length - 1 && allBytes[i] === 0x0D && allBytes[i+1] === 0x0A) {
+      lines.push(allBytes.slice(start, i));
+      i++;
+      start = i + 1;
+    }
+  }
+  if (start < allBytes.length) lines.push(allBytes.slice(start));
+  return lines;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Carrega DE/PARA de arquivo Excel (.xlsx)
+// ═══════════════════════════════════════════════════════════════
+async function loadDeParaExcel(file) {
+  const buf  = await readFileAsBuffer(file);
+  const wb   = XLSX.read(buf, { type: 'array', cellText: true, cellNF: false });
+  const ws   = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+  const map  = new Map();
+  for (const row of rows) {
+    const dom = toDigits(String(row[0] ?? ''));
+    const cli = toDigits(String(row[2] ?? ''));
+    if (cli && dom && !map.has(cli)) map.set(cli, dom);
+  }
+  return map;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Carrega DE/PARA de arquivo CSV
+// ═══════════════════════════════════════════════════════════════
+async function loadDeParaCSV(file) {
+  let text = '';
+  try {
+    text = await readFileAsText(file, 'utf-8');
+  } catch {
+    text = await readFileAsText(file, 'windows-1252');
+  }
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  const lines = text.split(/\r?\n/);
+  const map   = new Map();
+  const sep   = lines[0] && lines[0].includes(';') ? ';' : ',';
+  for (const line of lines) {
+    if (!line.trim()) continue;
+    const cols = line.split(sep);
+    const dom  = toDigits(String(cols[0] ?? ''));
+    const cli  = toDigits(String(cols[2] ?? ''));
+    if (cli && dom && !map.has(cli)) map.set(cli, dom);
+  }
+  return map;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Download genérico
+// ═══════════════════════════════════════════════════════════════
+function downloadFile(filename, content, mime) {
+  const blob = new Blob([content], { type: mime });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Processamento PAGAMENTO
+// ═══════════════════════════════════════════════════════════════
+function processarLinhaPagamento(rawBytes, mapDePara) {
+  if (!rawBytes || rawBytes.length === 0) return '';
+  const lb      = to1252LineBytes(rawBytes);
+  const dataOut = formatDataDDMMAAAA(bytesToString1252(getSubBytes(lb, 13, 20)));
+  const c2      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 74, 87))), mapDePara);
+  const c3      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 93, 97))), mapDePara);
+  const c4Bytes = getSubBytes(lb, 117, 132);
+  let c4raw = bytesToString1252(c4Bytes).trim();
+  let c4ext = c4raw; let pulou133 = false;
+  const nb = lb.length >= 133 ? lb[132] : null;
+  if (c4raw.includes('.')) {
+    const ad = c4raw.split('.')[1];
+    if (ad.length < 2 && nb !== null && /^\d$/.test(String.fromCharCode(nb))) {
+      c4ext = c4raw + String.fromCharCode(nb); pulou133 = true;
+    }
+  }
+  const c4 = c4ext.replace(/^\s*0+/, '').replace('.', ',');
+  const startC5 = pulou133 ? 134 : 133;
+  let c5 = '';
+  if (lb.length >= startC5) {
+    const s = bytesToString1252(getSubBytes(lb, startC5, lb.length)).trimEnd();
+    if (s.trim()) c5 = s;
+  }
+  return `${dataOut};${c2};${c3};${c4};;${c5 ? c5 + ';' : ''}1`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Processamento RECEBIMENTO
+// ═══════════════════════════════════════════════════════════════
+function processarLinhaRecebimento(rawBytes, mapDePara) {
+  if (!rawBytes || rawBytes.length === 0) return '';
+  const lb      = to1252LineBytes(rawBytes);
+  const dataOut = formatDataDDMMAAAA(bytesToString1252(getSubBytes(lb, 13, 20)));
+  const c2      = aplicarDePara(removeLeadingZeros(toDigits(bytesToString1252(getSubBytes(lb, 66, 73)))), mapDePara);
+  const c3      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 98, 111))), mapDePara);
+  const c4Bytes = getSubBytes(lb, 117, 132);
+  let c4raw = bytesToString1252(c4Bytes).trim();
+  let c4ext = c4raw; let pulou133 = false;
+  const nb = lb.length >= 133 ? lb[132] : null;
+  if (c4raw.includes('.')) {
+    const ad = c4raw.split('.')[1];
+    if (ad.length < 2 && nb !== null && /^\d$/.test(String.fromCharCode(nb))) {
+      c4ext = c4raw + String.fromCharCode(nb); pulou133 = true;
+    }
+  }
+  const c4 = c4ext.replace(/^\s*0+/, '').replace('.', ',');
+  const startC5 = pulou133 ? 134 : 133;
+  let c5 = '';
+  if (lb.length >= startC5) {
+    const s = bytesToString1252(getSubBytes(lb, startC5, lb.length)).trimEnd();
+    if (s.trim()) c5 = s;
+  }
+  return `${dataOut};${c2};${c3};${c4};;${c5 ? c5 + ';' : ''}1`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Executar PAGAMENTO / RECEBIMENTO
+//
+// ★ ALTERADO: após splitLinesBytesCRLF, aplica linhaComecaComLC()
+//   para descartar linhas que NÃO começam com "LC".
+//   O contador de ignoradas é exibido na mensagem de sucesso
+//   para dar transparência ao usuário.
+// ═══════════════════════════════════════════════════════════════
+async function executar(tab) {
+  clearStatus(tab);
+  const s   = state[tab];
+  const btn = document.getElementById(`${tab}-exec-btn`);
+  if (!s.origemFile) { showStatus(tab, '⚠️ Informe o arquivo TXT de origem.', 'error'); return; }
+  if (!s.planoFile)  { showStatus(tab, '⚠️ Informe a planilha Excel do plano (DE/PARA).', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Processando...';
+  showStatus(tab, '⏳ Carregando planilha e processando linhas...', 'info');
+  try {
+    const mapDePara   = await loadDeParaExcel(s.planoFile);
+    const bufOrigem   = await readFileAsBuffer(s.origemFile);
+    const allBytes    = new Uint8Array(bufOrigem);
+    const todasLinhas = splitLinesBytesCRLF(allBytes);
+
+    // ── Filtra apenas linhas que começam com "LC" ─────────────
+    const linhasLC    = todasLinhas.filter(lb => linhaComecaComLC(lb));
+    const ignoradas   = todasLinhas.length - linhasLC.length;
+    // ─────────────────────────────────────────────────────────
+
+    const fn    = tab === 'pag' ? processarLinhaPagamento : processarLinhaRecebimento;
+    const saida = linhasLC.map(lb => fn(lb, mapDePara));
+    const nome  = tab === 'pag' ? 'PAGAMENTO.txt' : 'RECEBIMENTO.txt';
+    downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
+    showStatus(tab,
+      `✅ <strong>${nome}</strong> gerado com sucesso! ` +
+      `(${saida.length} linha(s) processadas · ${ignoradas} ignorada(s) por não iniciarem com "LC")`,
+      'success');
+  } catch (err) {
+    showStatus(tab, `❌ Erro: ${err.message}`, 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '▶ Executar';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Identificação CPF / CNPJ
+// ═══════════════════════════════════════════════════════════════
+function identificarTipo(digits) {
+  if (digits.length === 14) {
+    const filial = digits.slice(8, 12);
+    if (filial.startsWith('000')) return 'CNPJ';
+  }
+  return 'CPF';
+}
+function normalizarDigitos(rawDigits) {
+  return identificarTipo(rawDigits) === 'CPF'
+    ? rawDigits.slice(-11)
+    : rawDigits;
+}
+function formatarCPF(d)  { return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9,11)}`; }
+function formatarCNPJ(d) { return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12,14)}`; }
+function formatarDocumento(digits, tipo) {
+  if (tipo === 'CPF')  return formatarCPF(digits);
+  if (tipo === 'CNPJ') return formatarCNPJ(digits);
+  return digits;
+}
+function cmpDigits(a, b) {
+  if (a.length !== b.length) return a.length - b.length;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Extrair CPF/CNPJ
+//
+// ★ ALTERADO: aplica linhaComecaComLC() antes de processar
+//   cada linha, descartando as que não iniciam com "LC".
+//   O total de ignoradas aparece na mensagem de sucesso.
+// ═══════════════════════════════════════════════════════════════
+async function executarExtrair() {
+  clearStatus('cnpj');
+  resetPreview();
+  const s   = state.cnpj;
+  const btn = document.getElementById('cnpj-exec-btn');
+  if (!s.origemFile) { showStatus('cnpj', '⚠️ Informe o arquivo TXT de origem.', 'error'); return; }
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Processando...';
+  showStatus('cnpj', '⏳ Lendo arquivo e extraindo documentos...', 'info');
+  try {
+    const buf      = await readFileAsBuffer(s.origemFile);
+    const allBytes = new Uint8Array(buf);
+    const todasLinhas = splitLinesBytesCRLF(allBytes);
+
+    // ── Filtra apenas linhas que começam com "LC" ─────────────
+    const linhasLC  = todasLinhas.filter(lb => linhaComecaComLC(lb));
+    const ignoradas = todasLinhas.length - linhasLC.length;
+    // ─────────────────────────────────────────────────────────
+
+    const seen = new Set();
+
+    for (const lb of linhasLC) {
+      if (!lb || lb.length === 0) continue;
+      const lineBytes   = to1252LineBytes(lb);
+      const seg         = getSubBytes(lineBytes, 74, 87);
+      const raw         = bytesToString1252(seg).trim();
+      const digits      = toDigits(raw);
+      if (!digits || /^0+$/.test(digits)) continue;
+      const normalizado = normalizarDigitos(digits);
+      if (!normalizado || /^0+$/.test(normalizado)) continue;
+      seen.add(normalizado);
+    }
+
+    if (seen.size === 0) {
+      showStatus('cnpj', '⚠️ Nenhum documento encontrado nas colunas 74–87 das linhas "LC".', 'error');
+      btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
+    }
+
+    const cpfs = [], cnpjs = [];
+    for (const digits of seen) {
+      identificarTipo(digits) === 'CNPJ' ? cnpjs.push(digits) : cpfs.push(digits);
+    }
+    cpfs.sort(cmpDigits);
+    cnpjs.sort(cmpDigits);
+
+    const todos = [
+      ...cpfs.map(d  => ({ digits: d, tipo: 'CPF'  })),
+      ...cnpjs.map(d => ({ digits: d, tipo: 'CNPJ' }))
+    ];
+
+    const csvLinhas = ['TIPO;NUMERO;FORMATADO'];
+    for (const item of todos) {
+      csvLinhas.push(`${item.tipo};${item.digits};${formatarDocumento(item.digits, item.tipo)}`);
+    }
+
+    const previewBody = document.getElementById('cnpj-preview-body');
+    let previewCount = 0, lastTipo = null;
+    for (const item of todos) {
+      if (previewCount >= 100) break;
+      if (lastTipo !== null && item.tipo !== lastTipo) {
+        const sep = document.createElement('tr');
+        sep.className = 'divider-row';
+        sep.innerHTML = `<td colspan="4">── CNPJs ──</td>`;
+        previewBody.appendChild(sep);
+      }
+      lastTipo = item.tipo;
+      const fmt = formatarDocumento(item.digits, item.tipo);
+      const tr  = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${previewCount + 1}</td>
+        <td class="${item.tipo === 'CPF' ? 'type-cpf' : 'type-cnpj'}">${item.tipo}</td>
+        <td>${item.digits}</td>
+        <td>${fmt}</td>`;
+      previewBody.appendChild(tr);
+      previewCount++;
+    }
+
+    document.getElementById('badge-cpf').textContent   = `CPF: ${cpfs.length}`;
+    document.getElementById('badge-cnpj').textContent  = `CNPJ: ${cnpjs.length}`;
+    document.getElementById('badge-total').textContent = `Total: ${todos.length}`;
+    document.getElementById('cnpj-summary').style.display = 'flex';
+    document.getElementById('cnpj-preview-wrap').classList.add('visible');
+
+    const nomeCSV    = document.getElementById('cnpj-destino-name').value || 'CPF_CNPJ_EXTRAIDOS.csv';
+    const csvContent = '\uFEFF' + csvLinhas.join('\r\n');
+    downloadFile(nomeCSV, csvContent, 'text/csv;charset=utf-8');
+
+    const avisoPreview = todos.length > 100
+      ? ` <em>(preview limitado a 100 de ${todos.length})</em>` : '';
+    showStatus('cnpj',
+      `✅ <strong>${nomeCSV}</strong> gerado! ` +
+      `${cpfs.length} CPF(s) · ${cnpjs.length} CNPJ(s) · sem duplicatas · ` +
+      `${ignoradas} linha(s) ignorada(s) por não iniciarem com "LC".${avisoPreview}`,
+      'success');
+  } catch (err) {
+    showStatus('cnpj', `❌ Erro: ${err.message}`, 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '▶ Executar';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  ★  FOLHA — lógica principal (sem alterações — lê Excel, não TXT)
+// ═══════════════════════════════════════════════════════════════
+async function executarFolha() {
+  clearStatus('folha');
+  const s   = state.folha;
+  const btn = document.getElementById('folha-exec-btn');
+
+  if (!s.origemFile) { showStatus('folha', '⚠️ Informe o arquivo Excel de origem.', 'error'); return; }
+  if (!s.planoFile)  { showStatus('folha', '⚠️ Informe o arquivo CSV do plano (DE/PARA).', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Processando...';
+  showStatus('folha', '⏳ Carregando arquivos e processando linhas...', 'info');
+
+  try {
+    const mapDePara = await loadDeParaCSV(s.planoFile);
+
+    const buf = await readFileAsBuffer(s.origemFile);
+    const wb  = XLSX.read(buf, {
+      type:      'array',
+      cellDates: true,
+      cellNF:    false,
+      cellText:  false
+    });
+    const ws   = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+    const saida        = [];
+    let   linhasValidas = 0;
+
+    for (let i = 4; i < rows.length; i++) {
+      const row = rows[i];
+      const temConteudo = row.some(c => c !== '' && c !== null && c !== undefined);
+      if (!temConteudo) continue;
+
+      const data    = formatarData(row[1] ?? '');
+      const cDepara = aplicarDePara(toDigits(String(row[2] ?? '')), mapDePara);
+      const fDepara = aplicarDePara(toDigits(String(row[5] ?? '')), mapDePara);
+      const colK    = formatarValorBR(row[10] ?? '');
+      const colJ    = String(row[9] ?? '').trim();
+
+      saida.push(`${data};${cDepara};${fDepara};${colK};;${colJ};1`);
+      linhasValidas++;
+    }
+
+    if (linhasValidas === 0) {
+      showStatus('folha', '⚠️ Nenhuma linha válida encontrada a partir da linha 5.', 'error');
+      btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
+    }
+
+    const nome = document.getElementById('folha-destino-name').value || 'FOLHA.txt';
+    downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
+
+    showStatus('folha',
+      `✅ <strong>${nome}</strong> gerado com sucesso! (${linhasValidas} linha(s) processadas)`,
+      'success');
+
+  } catch (err) {
+    showStatus('folha', `❌ Erro: ${err.message}`, 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '▶ Executar';
+  }
+}
+</script>
+</body>
+</html>
