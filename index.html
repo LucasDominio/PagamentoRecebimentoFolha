@@ -240,7 +240,7 @@
     <button class="tab-btn active" onclick="switchTab('pag')">PAGAMENTO</button>
     <button class="tab-btn"        onclick="switchTab('rec')">RECEBIMENTO</button>
     <button class="tab-btn"        onclick="switchTab('folha')">📋 FOLHA</button>
-	<button class="tab-btn"        onclick="switchTab('cnpj')">🔍 Extrair CPF/CNPJ</button>
+    <button class="tab-btn"        onclick="switchTab('cnpj')">🔍 Extrair CPF/CNPJ</button>
   </div>
 
   <!-- ══════════════════════════════════════════════
@@ -529,6 +529,20 @@ function formatDataDDMMAAAA(raw) {
 }
 
 // ═══════════════════════════════════════════════════════════════
+// ★ NOVO — Verifica se uma linha (Uint8Array) começa com "LC"
+//
+// Por que bytes e não string?
+//   Os arquivos TXT podem ser Windows-1252. Trabalhar direto nos
+//   bytes garante que a checagem ocorra ANTES de qualquer decode,
+//   evitando problemas com BOM ou encoding inesperado.
+//   'L' = 0x4C  |  'C' = 0x43
+// ═══════════════════════════════════════════════════════════════
+function linhaComecaComLC(lineBytes) {
+  if (!lineBytes || lineBytes.length < 2) return false;
+  return lineBytes[0] === 0x4C && lineBytes[1] === 0x43; // 'L' e 'C'
+}
+
+// ═══════════════════════════════════════════════════════════════
 // Converte serial do Excel para DD/MM/AAAA
 // ═══════════════════════════════════════════════════════════════
 function excelSerialToDate(serial) {
@@ -547,68 +561,43 @@ function excelSerialToDate(serial) {
 // ═══════════════════════════════════════════════════════════════
 function formatarData(valor) {
   if (valor === null || valor === undefined || valor === '') return '';
-
-  // Número serial do Excel
   if (typeof valor === 'number') return excelSerialToDate(valor);
-
-  // Objeto Date (gerado pelo SheetJS com cellDates: true)
   if (valor instanceof Date) {
     const dd   = String(valor.getUTCDate()).padStart(2, '0');
     const mm   = String(valor.getUTCMonth() + 1).padStart(2, '0');
     const yyyy = valor.getUTCFullYear();
     return `${dd}/${mm}/${yyyy}`;
   }
-
   const s = String(valor).trim();
-
-  // Já está em DD/MM/AAAA
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-
-  // Formato ISO YYYY-MM-DD
   const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
-
-  // Apenas dígitos DDMMAAAA
   const digits = s.replace(/\D/g, '');
   if (digits.length === 8)
     return `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4,8)}`;
-
   return s;
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Formata valor numérico para padrão BR (vírgula, 2 decimais)
-// Ex: 896465.5 → 896465,50 | 1234 → 1234,00
 // ═══════════════════════════════════════════════════════════════
 function formatarValorBR(valor) {
   if (valor === null || valor === undefined || valor === '') return '';
-
-  // Número vindo direto do Excel como float
-  if (typeof valor === 'number') {
-    return valor.toFixed(2).replace('.', ',');
-  }
-
+  if (typeof valor === 'number') return valor.toFixed(2).replace('.', ',');
   const s = String(valor).trim();
   if (s === '') return '';
-
-  // Já está no formato BR com vírgula (ex: "1.234,56" ou "896465,50")
   if (s.includes(',')) {
     const partes  = s.replace(/\./g, '').split(',');
     const inteiro = partes[0];
     const decimal = (partes[1] ?? '').padEnd(2, '0').slice(0, 2);
     return `${inteiro},${decimal}`;
   }
-
-  // Formato com ponto decimal (ex: "896465.5" ou "1234.00")
   if (s.includes('.')) {
     const num = parseFloat(s);
     if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
   }
-
-  // Número inteiro sem separador decimal
   const num = parseFloat(s);
   if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
-
   return s;
 }
 
@@ -631,7 +620,6 @@ function splitLinesBytesCRLF(allBytes) {
 
 // ═══════════════════════════════════════════════════════════════
 // Carrega DE/PARA de arquivo Excel (.xlsx)
-// Coluna A = DOMÍNIO (destino), Coluna C = CLIENTE (chave)
 // ═══════════════════════════════════════════════════════════════
 async function loadDeParaExcel(file) {
   const buf  = await readFileAsBuffer(file);
@@ -649,8 +637,6 @@ async function loadDeParaExcel(file) {
 
 // ═══════════════════════════════════════════════════════════════
 // Carrega DE/PARA de arquivo CSV
-// Coluna A = DOMÍNIO (destino), Coluna C = CLIENTE (chave)
-// Suporta separadores ; e ,
 // ═══════════════════════════════════════════════════════════════
 async function loadDeParaCSV(file) {
   let text = '';
@@ -659,14 +645,10 @@ async function loadDeParaCSV(file) {
   } catch {
     text = await readFileAsText(file, 'windows-1252');
   }
-
-  // Remove BOM se presente
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
-
   const lines = text.split(/\r?\n/);
   const map   = new Map();
   const sep   = lines[0] && lines[0].includes(';') ? ';' : ',';
-
   for (const line of lines) {
     if (!line.trim()) continue;
     const cols = line.split(sep);
@@ -750,6 +732,11 @@ function processarLinhaRecebimento(rawBytes, mapDePara) {
 
 // ═══════════════════════════════════════════════════════════════
 // Executar PAGAMENTO / RECEBIMENTO
+//
+// ★ ALTERADO: após splitLinesBytesCRLF, aplica linhaComecaComLC()
+//   para descartar linhas que NÃO começam com "LC".
+//   O contador de ignoradas é exibido na mensagem de sucesso
+//   para dar transparência ao usuário.
 // ═══════════════════════════════════════════════════════════════
 async function executar(tab) {
   clearStatus(tab);
@@ -764,12 +751,21 @@ async function executar(tab) {
     const mapDePara   = await loadDeParaExcel(s.planoFile);
     const bufOrigem   = await readFileAsBuffer(s.origemFile);
     const allBytes    = new Uint8Array(bufOrigem);
-    const linhasBytes = splitLinesBytesCRLF(allBytes);
+    const todasLinhas = splitLinesBytesCRLF(allBytes);
+
+    // ── Filtra apenas linhas que começam com "LC" ─────────────
+    const linhasLC    = todasLinhas.filter(lb => linhaComecaComLC(lb));
+    const ignoradas   = todasLinhas.length - linhasLC.length;
+    // ─────────────────────────────────────────────────────────
+
     const fn    = tab === 'pag' ? processarLinhaPagamento : processarLinhaRecebimento;
-    const saida = linhasBytes.map(lb => fn(lb, mapDePara));
+    const saida = linhasLC.map(lb => fn(lb, mapDePara));
     const nome  = tab === 'pag' ? 'PAGAMENTO.txt' : 'RECEBIMENTO.txt';
     downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
-    showStatus(tab, `✅ <strong>${nome}</strong> gerado com sucesso! (${saida.length} linha(s))`, 'success');
+    showStatus(tab,
+      `✅ <strong>${nome}</strong> gerado com sucesso! ` +
+      `(${saida.length} linha(s) processadas · ${ignoradas} ignorada(s) por não iniciarem com "LC")`,
+      'success');
   } catch (err) {
     showStatus(tab, `❌ Erro: ${err.message}`, 'error');
     console.error(err);
@@ -808,6 +804,10 @@ function cmpDigits(a, b) {
 
 // ═══════════════════════════════════════════════════════════════
 // Extrair CPF/CNPJ
+//
+// ★ ALTERADO: aplica linhaComecaComLC() antes de processar
+//   cada linha, descartando as que não iniciam com "LC".
+//   O total de ignoradas aparece na mensagem de sucesso.
 // ═══════════════════════════════════════════════════════════════
 async function executarExtrair() {
   clearStatus('cnpj');
@@ -821,10 +821,16 @@ async function executarExtrair() {
   try {
     const buf      = await readFileAsBuffer(s.origemFile);
     const allBytes = new Uint8Array(buf);
-    const linhas   = splitLinesBytesCRLF(allBytes);
-    const seen     = new Set();
+    const todasLinhas = splitLinesBytesCRLF(allBytes);
 
-    for (const lb of linhas) {
+    // ── Filtra apenas linhas que começam com "LC" ─────────────
+    const linhasLC  = todasLinhas.filter(lb => linhaComecaComLC(lb));
+    const ignoradas = todasLinhas.length - linhasLC.length;
+    // ─────────────────────────────────────────────────────────
+
+    const seen = new Set();
+
+    for (const lb of linhasLC) {
       if (!lb || lb.length === 0) continue;
       const lineBytes   = to1252LineBytes(lb);
       const seg         = getSubBytes(lineBytes, 74, 87);
@@ -837,7 +843,7 @@ async function executarExtrair() {
     }
 
     if (seen.size === 0) {
-      showStatus('cnpj', '⚠️ Nenhum documento encontrado nas colunas 74–87.', 'error');
+      showStatus('cnpj', '⚠️ Nenhum documento encontrado nas colunas 74–87 das linhas "LC".', 'error');
       btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
     }
 
@@ -893,7 +899,9 @@ async function executarExtrair() {
     const avisoPreview = todos.length > 100
       ? ` <em>(preview limitado a 100 de ${todos.length})</em>` : '';
     showStatus('cnpj',
-      `✅ <strong>${nomeCSV}</strong> gerado! ${cpfs.length} CPF(s) · ${cnpjs.length} CNPJ(s) · sem duplicatas.${avisoPreview}`,
+      `✅ <strong>${nomeCSV}</strong> gerado! ` +
+      `${cpfs.length} CPF(s) · ${cnpjs.length} CNPJ(s) · sem duplicatas · ` +
+      `${ignoradas} linha(s) ignorada(s) por não iniciarem com "LC".${avisoPreview}`,
       'success');
   } catch (err) {
     showStatus('cnpj', `❌ Erro: ${err.message}`, 'error');
@@ -905,19 +913,7 @@ async function executarExtrair() {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ★  FOLHA — lógica principal
-//
-//  Lê o .xlsx a partir da linha 5 (índice 4)
-//  Colunas (0-based):
-//    B = índice 1  → data DD/MM/AAAA
-//    C = índice 2  → DE/PARA via Plano CSV
-//    F = índice 5  → DE/PARA via Plano CSV
-//    K = índice 10 → valor numérico → formato BR (vírgula, 2 decimais)
-//    (campo vazio)
-//    J = índice 9  → valor direto
-//    1             → fixo
-//
-//  Saída por linha: DATA;C;F;K;;J;1
+//  ★  FOLHA — lógica principal (sem alterações — lê Excel, não TXT)
 // ═══════════════════════════════════════════════════════════════
 async function executarFolha() {
   clearStatus('folha');
@@ -932,47 +928,32 @@ async function executarFolha() {
   showStatus('folha', '⏳ Carregando arquivos e processando linhas...', 'info');
 
   try {
-    // ── 1. Carrega DE/PARA do CSV ─────────────────────────────
     const mapDePara = await loadDeParaCSV(s.planoFile);
 
-    // ── 2. Lê o Excel de origem ───────────────────────────────
     const buf = await readFileAsBuffer(s.origemFile);
     const wb  = XLSX.read(buf, {
       type:      'array',
-      cellDates: true,   // converte datas para objetos Date automaticamente
+      cellDates: true,
       cellNF:    false,
       cellText:  false
     });
     const ws   = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
 
-    // ── 3. Processa a partir da linha 5 (índice 4) ────────────
     const saida        = [];
     let   linhasValidas = 0;
 
     for (let i = 4; i < rows.length; i++) {
       const row = rows[i];
-
-      // Ignora linhas completamente vazias
       const temConteudo = row.some(c => c !== '' && c !== null && c !== undefined);
       if (!temConteudo) continue;
 
-      // Coluna B (índice 1) — DATA → DD/MM/AAAA
-      const data = formatarData(row[1] ?? '');
-
-      // Coluna C (índice 2) — DE/PARA via Plano
+      const data    = formatarData(row[1] ?? '');
       const cDepara = aplicarDePara(toDigits(String(row[2] ?? '')), mapDePara);
-
-      // Coluna F (índice 5) — DE/PARA via Plano
       const fDepara = aplicarDePara(toDigits(String(row[5] ?? '')), mapDePara);
+      const colK    = formatarValorBR(row[10] ?? '');
+      const colJ    = String(row[9] ?? '').trim();
 
-      // Coluna K (índice 10) — valor numérico → formato BR (vírgula, 2 decimais)
-      const colK = formatarValorBR(row[10] ?? '');
-
-      // Coluna J (índice 9) — valor direto
-      const colJ = String(row[9] ?? '').trim();
-
-      // Monta linha: DATA;C;F;K;;J;1
       saida.push(`${data};${cDepara};${fDepara};${colK};;${colJ};1`);
       linhasValidas++;
     }
@@ -982,7 +963,6 @@ async function executarFolha() {
       btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
     }
 
-    // ── 4. Download do TXT ────────────────────────────────────
     const nome = document.getElementById('folha-destino-name').value || 'FOLHA.txt';
     downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
 
