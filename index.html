@@ -48,13 +48,8 @@
     background: transparent;
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
-    letter-spacing: 0.2px;
   }
-  .tab-btn.active {
-    color: #1a73e8;
-    border-bottom: 3px solid #1a73e8;
-    background: #fff;
-  }
+  .tab-btn.active { color: #1a73e8; border-bottom: 3px solid #1a73e8; background: #fff; }
   .tab-btn:hover:not(.active) { background: #dce6f7; }
   .tab-content { display: none; padding: 28px 24px 24px; }
   .tab-content.active { display: block; }
@@ -82,11 +77,7 @@
     background: #fafafa;
     transition: border 0.2s;
   }
-  .field-row input[type="text"]:focus {
-    outline: none;
-    border-color: #1a73e8;
-    background: #fff;
-  }
+  .field-row input[type="text"]:focus { outline: none; border-color: #1a73e8; background: #fff; }
   .field-row input[type="text"].has-file { border-color: #34a853; background: #f0faf3; }
 
   .file-label {
@@ -108,11 +99,70 @@
   .actions {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 10px;
     margin-top: 24px;
+    flex-wrap: wrap;
   }
+
+  .btn-dl {
+    padding: 9px 18px;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-dl.visible { display: inline-flex; }
+  .btn-dl-pag  { background: #1a73e8; }
+  .btn-dl-pag:hover  { background: #1558b0; }
+  .btn-dl-rec  { background: #00897b; }
+  .btn-dl-rec:hover  { background: #00695c; }
+
+  .btn-descartados {
+    padding: 9px 18px;
+    background: #f57c00;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: none;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-descartados.visible { display: inline-flex; }
+  .btn-descartados:hover { background: #e65100; }
+
+  .badge-count {
+    background: rgba(255,255,255,0.3);
+    border-radius: 10px;
+    padding: 1px 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .btn-limpar {
+    padding: 9px 18px;
+    background: #546e7a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .btn-limpar:hover { background: #37474f; }
+
   .btn-exec {
-    padding: 9px 32px;
+    padding: 9px 26px;
     background: #34a853;
     color: #fff;
     border: none;
@@ -124,8 +174,9 @@
   }
   .btn-exec:hover { background: #256e38; }
   .btn-exec:disabled { background: #aaa; cursor: not-allowed; }
+
   .btn-sair {
-    padding: 9px 32px;
+    padding: 9px 26px;
     background: #e53935;
     color: #fff;
     border: none;
@@ -148,14 +199,9 @@
   .status-bar.success { display: block; background: #e6f4ea; color: #256e38; border: 1px solid #a8d5b5; }
   .status-bar.error   { display: block; background: #fdecea; color: #b71c1c; border: 1px solid #f5c6c6; }
   .status-bar.info    { display: block; background: #e8f0fe; color: #1a73e8; border: 1px solid #aac4f7; }
+  .status-bar.warning { display: block; background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
 
-  .hint {
-    font-size: 0.82rem;
-    color: #888;
-    margin-top: 2px;
-    margin-left: 90px;
-    margin-bottom: 6px;
-  }
+  .hint { font-size: 0.82rem; color: #888; margin-top: 2px; margin-left: 90px; margin-bottom: 6px; }
 
   .spinner {
     display: inline-block;
@@ -169,66 +215,226 @@
   }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── Preview table (Extrair CPF/CNPJ) ── */
-  .preview-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-top: 20px;
-    margin-bottom: 6px;
+  .log-wrap { margin-top: 14px; display: none; border: 1px solid #d0d7e3; border-radius: 6px; overflow: hidden; }
+  .log-wrap.visible { display: block; }
+  .log-header {
+    background: #e8edf5; padding: 7px 14px; font-size: 0.85rem; font-weight: 700; color: #333;
+    display: flex; justify-content: space-between; align-items: center; cursor: pointer; user-select: none;
   }
+  .log-header:hover { background: #dce6f7; }
+  .log-body { max-height: 220px; overflow-y: auto; display: none; }
+  .log-body.open { display: block; }
+  .log-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .log-table thead th { background: #555; color: #fff; padding: 6px 10px; text-align: left; position: sticky; top: 0; }
+  .log-table tbody tr:nth-child(even) { background: #f9f9f9; }
+  .log-table tbody td { padding: 5px 10px; border-bottom: 1px solid #eee; font-family: monospace; font-size: 0.82rem; word-break: break-all; }
+  .tag-ok       { color: #256e38; font-weight: 700; }
+  .tag-rec5dig  { color: #6a1b9a; font-weight: 700; }
+  .tag-alt-deb  { color: #1565c0; font-weight: 700; }
+  .tag-fallback { color: #e65100; font-weight: 700; }
+  .tag-drop     { color: #b71c1c; font-weight: 700; }
+
+  .preview-header { display: flex; align-items: center; justify-content: space-between; margin-top: 20px; margin-bottom: 6px; }
   .preview-header span { font-size: 0.88rem; color: #555; font-weight: 600; }
-  .summary-badges { display: flex; gap: 8px; }
-  .badge {
-    display: inline-block;
-    border-radius: 12px;
-    padding: 3px 12px;
-    font-size: 0.82rem;
-    font-weight: 700;
-  }
+  .summary-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+  .badge { display: inline-block; border-radius: 12px; padding: 3px 12px; font-size: 0.82rem; font-weight: 700; }
   .badge-cpf   { background: #fff3e0; color: #e65100; border: 1px solid #ffcc80; }
   .badge-cnpj  { background: #e8f0fe; color: #1a73e8; border: 1px solid #aac4f7; }
   .badge-total { background: #e6f4ea; color: #256e38; border: 1px solid #a8d5b5; }
 
-  .preview-wrap {
-    max-height: 300px;
-    overflow-y: auto;
+  .preview-wrap { max-height: 300px; overflow-y: auto; border: 1px solid #d0d7e3; border-radius: 6px; display: none; }
+  .preview-wrap.visible { display: block; }
+  .preview-table { width: 100%; border-collapse: collapse; font-size: 0.87rem; }
+  .preview-table thead th { background: #1a73e8; color: #fff; padding: 8px 12px; text-align: left; position: sticky; top: 0; z-index: 1; }
+  .preview-table tbody tr:nth-child(even) { background: #f4f7fc; }
+  .preview-table tbody td { padding: 6px 12px; border-bottom: 1px solid #e5e9f0; color: #333; font-family: monospace; }
+  .type-cpf  { color: #e65100; font-weight: 700; }
+  .type-cnpj { color: #1a73e8; font-weight: 700; }
+  .divider-row td { background: #f0f0f0 !important; color: #999 !important; font-size: 0.78rem; text-align: center; padding: 4px !important; font-family: sans-serif !important; letter-spacing: 1px; }
+
+  /* ── Estilos exclusivos da aba Consulta CNPJ ── */
+  #tab-consultacnpj .cc-card {
+    background: #f8faff;
     border: 1px solid #d0d7e3;
-    border-radius: 6px;
+    border-radius: 8px;
+    padding: 18px 18px 14px;
+    margin-bottom: 18px;
+  }
+  #tab-consultacnpj .cc-label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 8px;
+    color: #1a3a5c;
+    font-size: 0.93rem;
+  }
+  #tab-consultacnpj textarea {
+    width: 100%;
+    height: 110px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 7px;
+    font-size: 0.92rem;
+    resize: vertical;
+    font-family: monospace;
+    transition: border 0.2s;
+    background: #fff;
+  }
+  #tab-consultacnpj textarea:focus { outline: none; border-color: #1a73e8; }
+  #tab-consultacnpj .cc-hint { font-size: 0.80rem; color: #888; margin-top: 5px; }
+  #tab-consultacnpj .cc-tipo-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  #tab-consultacnpj .cc-tipo-label { font-weight: 600; color: #1a3a5c; font-size: 0.93rem; }
+  #tab-consultacnpj .cc-tipo-options { display: flex; gap: 8px; }
+  #tab-consultacnpj .cc-tipo-btn {
+    padding: 7px 20px;
+    border: 2px solid #ccc;
+    border-radius: 7px;
+    font-size: 0.90rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #f5f5f5;
+    color: #555;
+    transition: all 0.2s;
+  }
+  #tab-consultacnpj .cc-tipo-btn:hover { border-color: #1a73e8; color: #1a73e8; }
+  #tab-consultacnpj .cc-tipo-btn.sel-c { background: #1a73e8; border-color: #1a73e8; color: #fff; }
+  #tab-consultacnpj .cc-tipo-btn.sel-f { background: #e67e22; border-color: #e67e22; color: #fff; }
+  #tab-consultacnpj .cc-tipo-badge {
+    font-size: 0.80rem;
+    padding: 3px 11px;
+    border-radius: 20px;
+    font-weight: 700;
     display: none;
   }
-  .preview-wrap.visible { display: block; }
-  .preview-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.87rem;
+  #tab-consultacnpj .cc-tipo-badge.show { display: inline-block; }
+  #tab-consultacnpj .cc-badge-c { background: #d0e8ff; color: #1a4a80; }
+  #tab-consultacnpj .cc-badge-f { background: #fde8d0; color: #7a3a00; }
+  #tab-consultacnpj .cc-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 14px;
+    flex-wrap: wrap;
+    align-items: center;
   }
-  .preview-table thead th {
+  #tab-consultacnpj .cc-btn-consultar {
+    padding: 9px 22px;
     background: #1a73e8;
     color: #fff;
-    padding: 8px 12px;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #tab-consultacnpj .cc-btn-consultar:hover { background: #155da0; }
+  #tab-consultacnpj .cc-btn-consultar:disabled { background: #8ab3d9; cursor: not-allowed; }
+  #tab-consultacnpj .cc-btn-limpar {
+    padding: 9px 18px;
+    background: #546e7a;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  #tab-consultacnpj .cc-btn-limpar:hover { background: #37474f; }
+  #tab-consultacnpj .cc-btn-exportar {
+    padding: 9px 18px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 7px;
+    font-size: 0.93rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    display: none;
+  }
+  #tab-consultacnpj .cc-btn-exportar:hover { background: #1e7e34; }
+  #tab-consultacnpj .cc-btn-exportar.visible { display: inline-block; }
+  #tab-consultacnpj .cc-status {
+    font-size: 0.90rem;
+    color: #555;
+    min-height: 20px;
+    margin: 10px 0 6px;
+  }
+  #tab-consultacnpj .cc-progress-wrap {
+    background: #e0e0e0;
+    border-radius: 6px;
+    height: 8px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  #tab-consultacnpj .cc-progress-bar {
+    height: 8px;
+    background: #1a73e8;
+    border-radius: 6px;
+    width: 0%;
+    transition: width 0.3s;
+  }
+  #tab-consultacnpj .cc-table-wrap {
+    max-height: 380px;
+    overflow: auto;
+    border: 1px solid #d0d7e3;
+    border-radius: 7px;
+    display: none;
+  }
+  #tab-consultacnpj .cc-table-wrap.visible { display: block; }
+  #tab-consultacnpj .cc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    min-width: 1100px;
+  }
+  #tab-consultacnpj .cc-table thead { background: #1a3a5c; color: #fff; }
+  #tab-consultacnpj .cc-table thead th {
+    padding: 9px 12px;
     text-align: left;
+    white-space: nowrap;
+    font-weight: 600;
     position: sticky;
     top: 0;
     z-index: 1;
   }
-  .preview-table tbody tr:nth-child(even) { background: #f4f7fc; }
-  .preview-table tbody td {
-    padding: 6px 12px;
-    border-bottom: 1px solid #e5e9f0;
-    color: #333;
-    font-family: monospace;
+  #tab-consultacnpj .cc-table tbody tr { border-bottom: 1px solid #eee; }
+  #tab-consultacnpj .cc-table tbody tr:last-child { border-bottom: none; }
+  #tab-consultacnpj .cc-table tbody tr:hover { background: #f5f8ff; }
+  #tab-consultacnpj .cc-table tbody td { padding: 8px 12px; vertical-align: top; }
+  #tab-consultacnpj .cc-badge {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    white-space: nowrap;
   }
-  .type-cpf  { color: #e65100; font-weight: 700; }
-  .type-cnpj { color: #1a73e8; font-weight: 700; }
-  .divider-row td {
-    background: #f0f0f0 !important;
-    color: #999 !important;
-    font-size: 0.78rem;
-    text-align: center;
-    padding: 4px !important;
-    font-family: sans-serif !important;
-    letter-spacing: 1px;
+  #tab-consultacnpj .cc-badge-ativa    { background: #d4edda; color: #155724; }
+  #tab-consultacnpj .cc-badge-baixada  { background: #f8d7da; color: #721c24; }
+  #tab-consultacnpj .cc-badge-inapta   { background: #fff3cd; color: #856404; }
+  #tab-consultacnpj .cc-badge-suspensa { background: #ffeeba; color: #856404; }
+  #tab-consultacnpj .cc-badge-outro    { background: #e2e3e5; color: #383d41; }
+  #tab-consultacnpj .cc-badge-erro     { background: #f8d7da; color: #721c24; }
+  #tab-consultacnpj .cc-badge-tipo-c   { background: #d0e8ff; color: #1a4a80; }
+  #tab-consultacnpj .cc-badge-tipo-f   { background: #fde8d0; color: #7a3a00; }
+  #tab-consultacnpj .cc-cnpj-cell      { font-family: monospace; font-weight: 600; white-space: nowrap; }
+  #tab-consultacnpj .cc-loading-row td { text-align: center; color: #888; font-style: italic; padding: 14px; }
+  #tab-consultacnpj .cc-spinner {
+    display: inline-block;
+    width: 13px; height: 13px;
+    border: 2px solid #ccc;
+    border-top-color: #1a73e8;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    vertical-align: middle;
+    margin-right: 5px;
   }
 </style>
 </head>
@@ -237,15 +443,14 @@
   <div class="title-bar">⚙️ Processo — PAGAMENTO / RECEBIMENTO</div>
 
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('pag')">PAGAMENTO</button>
+    <button class="tab-btn active" onclick="switchTab('pag')">PAGAMENTO/UNICO</button>
     <button class="tab-btn"        onclick="switchTab('rec')">RECEBIMENTO</button>
     <button class="tab-btn"        onclick="switchTab('folha')">📋 FOLHA</button>
     <button class="tab-btn"        onclick="switchTab('cnpj')">🔍 Extrair CPF/CNPJ</button>
+    <button class="tab-btn"        onclick="switchTab('consultacnpj')">🌐 Consulta CNPJ</button>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       ABA PAGAMENTO
-  ══════════════════════════════════════════════ -->
+  <!-- ABA PAGAMENTO -->
   <div id="tab-pag" class="tab-content active">
     <div class="field-row">
       <label>Origem:</label>
@@ -254,13 +459,6 @@
       <input type="file" id="pag-origem-file" accept=".txt,text/plain">
     </div>
     <p class="hint">Arquivo TXT de origem para PAGAMENTO.</p>
-
-    <div class="field-row">
-      <label>Destino:</label>
-      <input type="text" id="pag-destino-name" value="PAGAMENTO.txt" readonly>
-    </div>
-    <p class="hint">O arquivo será baixado automaticamente como <strong>PAGAMENTO.txt</strong>.</p>
-
     <div class="field-row">
       <label>Plano:</label>
       <input type="text" id="pag-plano-name" placeholder="Nenhuma planilha selecionada..." readonly>
@@ -268,17 +466,35 @@
       <input type="file" id="pag-plano-file" accept=".xlsx,.xls,.xlsm">
     </div>
     <p class="hint">Planilha Excel: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
-
     <div class="actions">
+      <button class="btn-dl btn-dl-pag" id="pag-dl-pag" onclick="downloadResultado('pag','pag')">
+        ⬇ PAGAMENTO <span class="badge-count" id="pag-dl-pag-cnt"></span>
+      </button>
+      <button class="btn-dl btn-dl-rec" id="pag-dl-rec" onclick="downloadResultado('pag','rec')">
+        ⬇ RECEBIMENTO <span class="badge-count" id="pag-dl-rec-cnt"></span>
+      </button>
+      <button class="btn-descartados" id="pag-btn-descartados" onclick="downloadDescartados('pag')">
+        ⬇ Descartados <span class="badge-count" id="pag-badge-desc">0</span>
+      </button>
+      <button class="btn-limpar" onclick="limparAba('pag')">🗑 Limpar</button>
       <button class="btn-exec" id="pag-exec-btn" onclick="executar('pag')">▶ Executar</button>
       <button class="btn-sair" onclick="fechar()">✕ Sair</button>
     </div>
     <div class="status-bar" id="pag-status"></div>
+    <div class="log-wrap" id="pag-log-wrap">
+      <div class="log-header" onclick="toggleLog('pag')">
+        📋 Detalhes da validação por linha <span id="pag-log-toggle">▼ Expandir</span>
+      </div>
+      <div class="log-body" id="pag-log-body">
+        <table class="log-table">
+          <thead><tr><th>#</th><th>Resultado</th><th>Tipo gerado</th><th>Observação</th></tr></thead>
+          <tbody id="pag-log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       ABA RECEBIMENTO
-  ══════════════════════════════════════════════ -->
+  <!-- ABA RECEBIMENTO -->
   <div id="tab-rec" class="tab-content">
     <div class="field-row">
       <label>Origem:</label>
@@ -287,13 +503,6 @@
       <input type="file" id="rec-origem-file" accept=".txt,text/plain">
     </div>
     <p class="hint">Arquivo TXT de origem para RECEBIMENTO.</p>
-
-    <div class="field-row">
-      <label>Destino:</label>
-      <input type="text" id="rec-destino-name" value="RECEBIMENTO.txt" readonly>
-    </div>
-    <p class="hint">O arquivo será baixado automaticamente como <strong>RECEBIMENTO.txt</strong>.</p>
-
     <div class="field-row">
       <label>Plano:</label>
       <input type="text" id="rec-plano-name" placeholder="Nenhuma planilha selecionada..." readonly>
@@ -301,17 +510,35 @@
       <input type="file" id="rec-plano-file" accept=".xlsx,.xls,.xlsm">
     </div>
     <p class="hint">Planilha Excel: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
-
     <div class="actions">
+      <button class="btn-dl btn-dl-pag" id="rec-dl-pag" onclick="downloadResultado('rec','pag')">
+        ⬇ PAGAMENTO<span class="badge-count" id="rec-dl-pag-cnt"></span>
+      </button>
+      <button class="btn-dl btn-dl-rec" id="rec-dl-rec" onclick="downloadResultado('rec','rec')">
+        ⬇ RECEBIMENTO <span class="badge-count" id="rec-dl-rec-cnt"></span>
+      </button>
+      <button class="btn-descartados" id="rec-btn-descartados" onclick="downloadDescartados('rec')">
+        ⬇ Descartados <span class="badge-count" id="rec-badge-desc">0</span>
+      </button>
+      <button class="btn-limpar" onclick="limparAba('rec')">🗑 Limpar</button>
       <button class="btn-exec" id="rec-exec-btn" onclick="executar('rec')">▶ Executar</button>
       <button class="btn-sair" onclick="fechar()">✕ Sair</button>
     </div>
     <div class="status-bar" id="rec-status"></div>
+    <div class="log-wrap" id="rec-log-wrap">
+      <div class="log-header" onclick="toggleLog('rec')">
+        📋 Detalhes da validação por linha <span id="rec-log-toggle">▼ Expandir</span>
+      </div>
+      <div class="log-body" id="rec-log-body">
+        <table class="log-table">
+          <thead><tr><th>#</th><th>Resultado</th><th>Tipo gerado</th><th>Observação</th></tr></thead>
+          <tbody id="rec-log-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       ABA EXTRAIR CPF/CNPJ
-  ══════════════════════════════════════════════ -->
+  <!-- ABA EXTRAIR CPF/CNPJ -->
   <div id="tab-cnpj" class="tab-content">
     <div class="field-row">
       <label>Origem:</label>
@@ -320,19 +547,20 @@
       <input type="file" id="cnpj-origem-file" accept=".txt,text/plain">
     </div>
     <p class="hint">Arquivo TXT de origem — colunas 74 a 87 serão extraídas.</p>
-
     <div class="field-row">
       <label>Destino:</label>
       <input type="text" id="cnpj-destino-name" value="CPF_CNPJ_EXTRAIDOS.csv" readonly>
     </div>
-    <p class="hint">CSV gerado: sem duplicatas · CPFs primeiro (ordem crescente) · depois CNPJs (ordem crescente).</p>
-
+    <p class="hint">CSV gerado: sem duplicatas · CPFs primeiro · depois CNPJs (ordem crescente).</p>
     <div class="actions">
+      <button class="btn-dl btn-dl-rec" id="cnpj-dl-csv" onclick="downloadResultado('cnpj','csv')" style="background:#1a73e8;">
+        ⬇ CSV <span class="badge-count" id="cnpj-dl-csv-cnt"></span>
+      </button>
+      <button class="btn-limpar" onclick="limparAba('cnpj')">🗑 Limpar</button>
       <button class="btn-exec" id="cnpj-exec-btn" onclick="executarExtrair()">▶ Executar</button>
       <button class="btn-sair" onclick="fechar()">✕ Sair</button>
     </div>
     <div class="status-bar" id="cnpj-status"></div>
-
     <div class="preview-header" id="cnpj-summary" style="display:none;">
       <span>Pré-visualização <em>(máx. 100 registros)</em></span>
       <div class="summary-badges">
@@ -341,27 +569,16 @@
         <span class="badge badge-total" id="badge-total"></span>
       </div>
     </div>
-
     <div class="preview-wrap" id="cnpj-preview-wrap">
       <table class="preview-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Tipo</th>
-            <th>Número (dígitos)</th>
-            <th>Formatado</th>
-          </tr>
-        </thead>
+        <thead><tr><th>#</th><th>Tipo</th><th>Número (dígitos)</th><th>Formatado</th></tr></thead>
         <tbody id="cnpj-preview-body"></tbody>
       </table>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════
-       ABA FOLHA
-  ══════════════════════════════════════════════ -->
+  <!-- ABA FOLHA -->
   <div id="tab-folha" class="tab-content">
-
     <div class="field-row">
       <label>Origem:</label>
       <input type="text" id="folha-origem-name" placeholder="Nenhum arquivo selecionado..." readonly>
@@ -369,13 +586,6 @@
       <input type="file" id="folha-origem-file" accept=".xlsx,.xls,.xlsm">
     </div>
     <p class="hint">Planilha Excel de origem — leitura a partir da linha 5.</p>
-
-    <div class="field-row">
-      <label>Destino:</label>
-      <input type="text" id="folha-destino-name" value="FOLHA.txt" readonly>
-    </div>
-    <p class="hint">O arquivo será baixado automaticamente como <strong>FOLHA.txt</strong>.</p>
-
     <div class="field-row">
       <label>Plano:</label>
       <input type="text" id="folha-plano-name" placeholder="Nenhum arquivo selecionado..." readonly>
@@ -383,15 +593,62 @@
       <input type="file" id="folha-plano-file" accept=".csv">
     </div>
     <p class="hint">Arquivo CSV do plano DE/PARA: coluna C (CLIENTE) → coluna A (DOMÍNIO).</p>
-
     <div class="actions">
+      <button class="btn-dl btn-dl-rec" id="folha-dl-btn" onclick="downloadResultado('folha','folha')" style="background:#1a73e8;">
+        ⬇ FOLHA.txt <span class="badge-count" id="folha-dl-cnt"></span>
+      </button>
+      <button class="btn-limpar" onclick="limparAba('folha')">🗑 Limpar</button>
       <button class="btn-exec" id="folha-exec-btn" onclick="executarFolha()">▶ Executar</button>
       <button class="btn-sair" onclick="fechar()">✕ Sair</button>
     </div>
     <div class="status-bar" id="folha-status"></div>
   </div>
 
-</div><!-- /container -->
+  <!-- ABA CONSULTA CNPJ -->
+  <div id="tab-consultacnpj" class="tab-content">
+    <div class="cc-card">
+      <div class="cc-tipo-row">
+        <span class="cc-tipo-label">Tipo:</span>
+        <div class="cc-tipo-options">
+          <button class="cc-tipo-btn" id="cc-btnCliente"    onclick="ccSelecionarTipo('C')">👤 Cliente</button>
+          <button class="cc-tipo-btn" id="cc-btnFornecedor" onclick="ccSelecionarTipo('F')">🏭 Fornecedor</button>
+        </div>
+        <span class="cc-tipo-badge cc-badge-c" id="cc-tipoBadge"></span>
+      </div>
+      <label class="cc-label" for="cc-cnpjInput">CNPJs para consultar</label>
+      <textarea id="cc-cnpjInput" placeholder="Cole os CNPJs aqui, um por linha ou separados por vírgula/ponto-e-vírgula.
+Exemplos:
+11.222.333/0001-81
+11222333000181
+00.000.000/0001-91, 11.111.111/0001-11"></textarea>
+      <p class="cc-hint">✅ Aceita CNPJs com ou sem formatação (pontos, barras, traços).</p>
+      <div class="cc-actions">
+        <button class="cc-btn-consultar" id="cc-btnConsultar" onclick="ccConsultarTodos()">▶ Consultar</button>
+        <button class="cc-btn-limpar"    onclick="ccLimpar()">🗑 Limpar</button>
+        <button class="cc-btn-exportar"  id="cc-btnExportar" onclick="ccExportarCSV()">⬇ Exportar CSV</button>
+      </div>
+    </div>
+    <div class="cc-status" id="cc-status"></div>
+    <div class="cc-progress-wrap" id="cc-progressWrap">
+      <div class="cc-progress-bar" id="cc-progressBar"></div>
+    </div>
+    <div class="cc-table-wrap" id="cc-tableWrap">
+      <table class="cc-table">
+        <thead>
+          <tr>
+            <th>Tipo</th><th>CNPJ</th><th>Razão Social</th><th>Nome Fantasia</th>
+            <th>Situação</th><th>Abertura</th><th>CNAE Principal</th>
+            <th>Natureza Jurídica</th><th>Porte</th><th>UF</th><th>Município</th>
+            <th>Bairro</th><th>Endereço</th><th>Número</th><th>Complemento</th>
+            <th>CEP</th><th>Telefone</th><th>Capital Social</th>
+          </tr>
+        </thead>
+        <tbody id="cc-tabelaBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -403,39 +660,135 @@ const state = {
   cnpj:  { origemFile: null },
   folha: { origemFile: null, planoFile: null }
 };
+const descartadosStore = { pag: [], rec: [] };
+const resultadoStore = {
+  pag:   { pag: null, rec: null },
+  rec:   { pag: null, rec: null },
+  cnpj:  { csv: null },
+  folha: { folha: null }
+};
 
 // ═══════════════════════════════════════════════════════════════
 // Troca de abas
 // ═══════════════════════════════════════════════════════════════
 function switchTab(tab) {
-  const tabs = ['pag', 'rec', 'folha', 'cnpj'];
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', tabs[i] === tab);
+  const tabs = ['pag','rec','folha','cnpj','consultacnpj'];
+  document.querySelectorAll('.tab-btn').forEach((b,i) =>
+    b.classList.toggle('active', tabs[i] === tab));
+  tabs.forEach(t =>
+    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab));
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Download resultado armazenado
+// ═══════════════════════════════════════════════════════════════
+function downloadResultado(aba, tipo) {
+  const conteudo = resultadoStore[aba][tipo];
+  if (!conteudo) return;
+  const nomes = {
+    pag:   'PAGAMENTO.txt',
+    rec:   'RECEBIMENTO.txt',
+    csv:   (document.getElementById('cnpj-destino-name')?.value || 'CPF_CNPJ_EXTRAIDOS.csv'),
+    folha: 'FOLHA.txt'
+  };
+  const mimes = {
+    pag:   'text/plain;charset=windows-1252',
+    rec:   'text/plain;charset=windows-1252',
+    csv:   'text/csv;charset=utf-8',
+    folha: 'text/plain;charset=windows-1252'
+  };
+  downloadFile(nomes[tipo], conteudo, mimes[tipo]);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Limpar aba
+// ═══════════════════════════════════════════════════════════════
+function limparAba(tab) {
+  const inputMap = {
+    pag:   ['pag-origem-file',  'pag-plano-file'],
+    rec:   ['rec-origem-file',  'rec-plano-file'],
+    cnpj:  ['cnpj-origem-file'],
+    folha: ['folha-origem-file','folha-plano-file']
+  };
+  const nameMap = {
+    pag:   ['pag-origem-name',  'pag-plano-name'],
+    rec:   ['rec-origem-name',  'rec-plano-name'],
+    cnpj:  ['cnpj-origem-name'],
+    folha: ['folha-origem-name','folha-plano-name']
+  };
+  const placeholders = {
+    pag:   ['Nenhum arquivo selecionado...','Nenhuma planilha selecionada...'],
+    rec:   ['Nenhum arquivo selecionado...','Nenhuma planilha selecionada...'],
+    cnpj:  ['Nenhum arquivo selecionado...'],
+    folha: ['Nenhum arquivo selecionado...','Nenhum arquivo selecionado...']
+  };
+
+  inputMap[tab].forEach((id, idx) => {
+    const inp = document.getElementById(id);
+    if (inp) inp.value = '';
+    const box = document.getElementById(nameMap[tab][idx]);
+    if (box) { box.value = ''; box.placeholder = placeholders[tab][idx]; box.classList.remove('has-file'); }
   });
-  tabs.forEach(t => {
-    document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
+
+  if (tab === 'pag' || tab === 'rec') {
+    state[tab].origemFile = null;
+    state[tab].planoFile  = null;
+    resetDescartados(tab);
+    resultadoStore[tab].pag = null;
+    resultadoStore[tab].rec = null;
+    ocultarBotoesDl(tab);
+    const logWrap   = document.getElementById(`${tab}-log-wrap`);
+    const logTbody  = document.getElementById(`${tab}-log-tbody`);
+    const logBody   = document.getElementById(`${tab}-log-body`);
+    const toggleEl  = document.getElementById(`${tab}-log-toggle`);
+    if (logWrap)  logWrap.classList.remove('visible');
+    if (logTbody) logTbody.innerHTML = '';
+    if (logBody)  logBody.classList.remove('open');
+    if (toggleEl) toggleEl.textContent = '▼ Expandir';
+  } else if (tab === 'cnpj') {
+    state.cnpj.origemFile = null;
+    resultadoStore.cnpj.csv = null;
+    const dlBtn = document.getElementById('cnpj-dl-csv');
+    if (dlBtn) dlBtn.classList.remove('visible');
+    resetPreview();
+  } else if (tab === 'folha') {
+    state.folha.origemFile = null;
+    state.folha.planoFile  = null;
+    resultadoStore.folha.folha = null;
+    const dlBtn = document.getElementById('folha-dl-btn');
+    if (dlBtn) dlBtn.classList.remove('visible');
+  }
+
+  clearStatus(tab);
+}
+
+function ocultarBotoesDl(tab) {
+  [`${tab}-dl-pag`, `${tab}-dl-rec`].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
   });
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Bind de inputs de arquivo
+// Bind inputs de arquivo
 // ═══════════════════════════════════════════════════════════════
 function bindFile(inputId, nameId, stateTab, stateKey) {
-  const inp     = document.getElementById(inputId);
-  const nameBox = document.getElementById(nameId);
+  const inp = document.getElementById(inputId);
+  const box = document.getElementById(nameId);
   inp.addEventListener('change', () => {
     const f = inp.files[0];
     if (!f) return;
     state[stateTab][stateKey] = f;
-    nameBox.value = f.name;
-    nameBox.classList.add('has-file');
+    box.value = f.name;
+    box.classList.add('has-file');
     if (stateTab === 'cnpj') resetPreview();
+    if (stateTab === 'pag' || stateTab === 'rec') resetDescartados(stateTab);
   });
 }
 bindFile('pag-origem-file',   'pag-origem-name',   'pag',   'origemFile');
-bindFile('pag-plano-file',    'pag-plano-name',    'pag',   'planoFile');
+bindFile('pag-plano-file',    'pag-plano-name',     'pag',   'planoFile');
 bindFile('rec-origem-file',   'rec-origem-name',   'rec',   'origemFile');
-bindFile('rec-plano-file',    'rec-plano-name',    'rec',   'planoFile');
+bindFile('rec-plano-file',    'rec-plano-name',     'rec',   'planoFile');
 bindFile('cnpj-origem-file',  'cnpj-origem-name',  'cnpj',  'origemFile');
 bindFile('folha-origem-file', 'folha-origem-name', 'folha', 'origemFile');
 bindFile('folha-plano-file',  'folha-plano-name',  'folha', 'planoFile');
@@ -446,15 +799,55 @@ function resetPreview() {
   document.getElementById('cnpj-summary').style.display = 'none';
   clearStatus('cnpj');
 }
+function resetDescartados(tab) {
+  descartadosStore[tab] = [];
+  const btn = document.getElementById(`${tab}-btn-descartados`);
+  if (btn) btn.classList.remove('visible');
+}
 
 // ═══════════════════════════════════════════════════════════════
-// Fechar
+// Download descartados
+// ═══════════════════════════════════════════════════════════════
+function downloadDescartados(tab) {
+  const lista = descartadosStore[tab];
+  if (!lista || lista.length === 0) return;
+  const nomePrincipal = tab === 'pag' ? 'PAGAMENTO' : 'RECEBIMENTO';
+  const nomeFallback  = tab === 'pag' ? 'RECEBIMENTO' : 'PAGAMENTO';
+  const nomeArquivo   = `DESCARTADOS_${nomePrincipal}.txt`;
+  const linhas = [
+    `====================================================`,
+    `  LINHAS DESCARTADAS — ${nomePrincipal}`,
+    `  Gerado em: ${new Date().toLocaleString('pt-BR')}`,
+    `  Total de registros descartados: ${lista.length}`,
+    `====================================================`, ``
+  ];
+  lista.forEach((item, idx) => {
+    linhas.push(`----------------------------------------------------`);
+    linhas.push(`Registro ${String(idx+1).padStart(4,'0')}  |  Linha original nº ${item.num}`);
+    linhas.push(`----------------------------------------------------`);
+    linhas.push(`LINHA ORIGINAL:`);
+    linhas.push(item.linhaOriginal);
+    linhas.push(``);
+    linhas.push(`FALHA como ${nomePrincipal} (débito col.74–87):`);
+    linhas.push(`  → ${item.motivoPrincipal}`);
+    if (item.motivoAltDebito) {
+      linhas.push(`FALHA como ${nomePrincipal} (débito alt. col.69–73):`);
+      linhas.push(`  → ${item.motivoAltDebito}`);
+    }
+    linhas.push(`FALHA como ${nomeFallback}:`);
+    linhas.push(`  → ${item.motivoFallback}`);
+    linhas.push(``);
+  });
+  linhas.push(`====================================================`);
+  linhas.push(`  FIM DO ARQUIVO`);
+  linhas.push(`====================================================`);
+  downloadFile(nomeArquivo, linhas.join('\r\n'), 'text/plain;charset=windows-1252');
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UI helpers
 // ═══════════════════════════════════════════════════════════════
 function fechar() { window.close(); }
-
-// ═══════════════════════════════════════════════════════════════
-// Status UI
-// ═══════════════════════════════════════════════════════════════
 function showStatus(tab, msg, type) {
   const el = document.getElementById(`${tab}-status`);
   el.className = `status-bar ${type}`;
@@ -465,39 +858,38 @@ function clearStatus(tab) {
   el.className = 'status-bar';
   el.innerHTML = '';
 }
-
-// ═══════════════════════════════════════════════════════════════
-// Leitura de arquivo como ArrayBuffer
-// ═══════════════════════════════════════════════════════════════
-function readFileAsBuffer(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload  = e => resolve(e.target.result);
-    reader.onerror = () => reject(new Error('Falha ao ler: ' + file.name));
-    reader.readAsArrayBuffer(file);
-  });
+function toggleLog(tab) {
+  const body   = document.getElementById(`${tab}-log-body`);
+  const toggle = document.getElementById(`${tab}-log-toggle`);
+  toggle.textContent = body.classList.toggle('open') ? '▲ Recolher' : '▼ Expandir';
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Leitura de arquivo como texto (para CSV)
+// Leitura de arquivos
 // ═══════════════════════════════════════════════════════════════
-function readFileAsText(file, encoding = 'utf-8') {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload  = e => resolve(e.target.result);
-    reader.onerror = () => reject(new Error('Falha ao ler: ' + file.name));
-    reader.readAsText(file, encoding);
+function readFileAsBuffer(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = e => res(e.target.result);
+    r.onerror = () => rej(new Error('Falha ao ler: ' + file.name));
+    r.readAsArrayBuffer(file);
+  });
+}
+function readFileAsText(file, enc = 'utf-8') {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload  = e => res(e.target.result);
+    r.onerror = () => rej(new Error('Falha ao ler: ' + file.name));
+    r.readAsText(file, enc);
   });
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Helpers de bytes / texto
 // ═══════════════════════════════════════════════════════════════
-function bytesToString1252(bytes) {
-  return new TextDecoder('windows-1252').decode(bytes);
-}
+function bytesToString1252(bytes) { return new TextDecoder('windows-1252').decode(bytes); }
 function stripUtf8Bom(bytes) {
-  if (bytes.length >= 3 && bytes[0]===0xEF && bytes[1]===0xBB && bytes[2]===0xBF)
+  if (bytes.length >= 3 && bytes[0] === 0xEF && bytes[1] === 0xBB && bytes[2] === 0xBF)
     return bytes.slice(3);
   return bytes;
 }
@@ -510,7 +902,7 @@ function getSubBytes(bytes, start, end) {
   if (start > bytes.length) return new Uint8Array(0);
   return bytes.slice(start - 1, end);
 }
-function toDigits(s) { return String(s ?? '').replace(/\D/g, ''); }
+function toDigits(s)  { return String(s ?? '').replace(/\D/g, ''); }
 function removeLeadingZeros(s) {
   if (!s) return s;
   const t = s.replace(/^0+/, '');
@@ -527,91 +919,88 @@ function formatDataDDMMAAAA(raw) {
   const s = d.substring(0, 8);
   return `${s.substring(0,2)}/${s.substring(2,4)}/${s.substring(4,8)}`;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// ★ NOVO — Verifica se uma linha (Uint8Array) começa com "LC"
-//
-// Por que bytes e não string?
-//   Os arquivos TXT podem ser Windows-1252. Trabalhar direto nos
-//   bytes garante que a checagem ocorra ANTES de qualquer decode,
-//   evitando problemas com BOM ou encoding inesperado.
-//   'L' = 0x4C  |  'C' = 0x43
-// ═══════════════════════════════════════════════════════════════
-function linhaComecaComLC(lineBytes) {
-  if (!lineBytes || lineBytes.length < 2) return false;
-  return lineBytes[0] === 0x4C && lineBytes[1] === 0x43; // 'L' e 'C'
+function debitoEhVazioOuZero(valor) {
+  const v = String(valor ?? '').trim();
+  return v === '' || /^0+$/.test(v);
+}
+function debitoFinalTem5Digitos(valor) {
+  return /^\d{5}$/.test(String(valor ?? '').trim());
+}
+function linhaComecaComLC(lb) {
+  return lb && lb.length >= 2 && lb[0] === 0x4C && lb[1] === 0x43;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Converte serial do Excel para DD/MM/AAAA
+// Validação de linha
+// ═══════════════════════════════════════════════════════════════
+function validarLinha(linha) {
+  if (!linha || !linha.trim()) return { valido: false, motivo: 'Linha vazia' };
+  const p    = linha.split(';');
+  const data = (p[0] ?? '').trim();
+  if (!data) return { valido: false, motivo: 'DATA vazia' };
+  if (!/^\d{2}\/\d{2}\/\d{4}$/.test(data)) return { valido: false, motivo: `DATA inválida: "${data}"` };
+  const [dd, mm, aaaa] = data.split('/').map(Number);
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || aaaa < 1900)
+    return { valido: false, motivo: `DATA fora do intervalo: "${data}"` };
+  const debito = (p[1] ?? '').trim();
+  if (!debito) return { valido: false, motivo: 'DÉBITO vazio' };
+  if (!/^\d+$/.test(debito)) return { valido: false, motivo: `DÉBITO não numérico: "${debito}"` };
+  const credito = (p[2] ?? '').trim();
+  if (!credito) return { valido: false, motivo: 'CRÉDITO vazio' };
+  if (!/^\d+$/.test(credito)) return { valido: false, motivo: `CRÉDITO não numérico: "${credito}"` };
+  const valorRaw = (p[3] ?? '').trim();
+  if (!valorRaw) return { valido: false, motivo: 'VALOR vazio' };
+  const valorNum = parseFloat(valorRaw.replace(',', '.'));
+  if (isNaN(valorNum) || valorNum < 0) return { valido: false, motivo: `VALOR não numérico: "${valorRaw}"` };
+  const historico = (p[5] ?? '').trim();
+  if (!historico) return { valido: false, motivo: 'HISTÓRICO vazio' };
+  return { valido: true };
+}
+
+// ═══════════════════════════════════════════════════════════════
+// Datas / valores
 // ═══════════════════════════════════════════════════════════════
 function excelSerialToDate(serial) {
   if (!serial || isNaN(serial)) return '';
-  const utc_days  = Math.floor(serial - 25569);
-  const utc_value = utc_days * 86400 * 1000;
-  const date      = new Date(utc_value);
-  const dd   = String(date.getUTCDate()).padStart(2, '0');
-  const mm   = String(date.getUTCMonth() + 1).padStart(2, '0');
-  const yyyy = date.getUTCFullYear();
-  return `${dd}/${mm}/${yyyy}`;
+  const date = new Date(Math.floor(serial - 25569) * 86400 * 1000);
+  return `${String(date.getUTCDate()).padStart(2,'0')}/${String(date.getUTCMonth()+1).padStart(2,'0')}/${date.getUTCFullYear()}`;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// Formata qualquer valor de data para DD/MM/AAAA
-// ═══════════════════════════════════════════════════════════════
 function formatarData(valor) {
   if (valor === null || valor === undefined || valor === '') return '';
   if (typeof valor === 'number') return excelSerialToDate(valor);
-  if (valor instanceof Date) {
-    const dd   = String(valor.getUTCDate()).padStart(2, '0');
-    const mm   = String(valor.getUTCMonth() + 1).padStart(2, '0');
-    const yyyy = valor.getUTCFullYear();
-    return `${dd}/${mm}/${yyyy}`;
-  }
+  if (valor instanceof Date)
+    return `${String(valor.getUTCDate()).padStart(2,'0')}/${String(valor.getUTCMonth()+1).padStart(2,'0')}/${valor.getUTCFullYear()}`;
   const s = String(valor).trim();
   if (/^\d{2}\/\d{2}\/\d{4}$/.test(s)) return s;
-  const isoMatch = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (isoMatch) return `${isoMatch[3]}/${isoMatch[2]}/${isoMatch[1]}`;
-  const digits = s.replace(/\D/g, '');
-  if (digits.length === 8)
-    return `${digits.slice(0,2)}/${digits.slice(2,4)}/${digits.slice(4,8)}`;
+  const m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  const d = s.replace(/\D/g, '');
+  if (d.length === 8) return `${d.slice(0,2)}/${d.slice(2,4)}/${d.slice(4,8)}`;
   return s;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// Formata valor numérico para padrão BR (vírgula, 2 decimais)
-// ═══════════════════════════════════════════════════════════════
 function formatarValorBR(valor) {
   if (valor === null || valor === undefined || valor === '') return '';
   if (typeof valor === 'number') return valor.toFixed(2).replace('.', ',');
   const s = String(valor).trim();
   if (s === '') return '';
   if (s.includes(',')) {
-    const partes  = s.replace(/\./g, '').split(',');
-    const inteiro = partes[0];
-    const decimal = (partes[1] ?? '').padEnd(2, '0').slice(0, 2);
-    return `${inteiro},${decimal}`;
+    const p = s.replace(/\./g, '').split(',');
+    return `${p[0]},${(p[1] ?? '').padEnd(2,'0').slice(0,2)}`;
   }
-  if (s.includes('.')) {
-    const num = parseFloat(s);
-    if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
-  }
-  const num = parseFloat(s);
-  if (!isNaN(num)) return num.toFixed(2).replace('.', ',');
+  if (s.includes('.')) { const n = parseFloat(s); if (!isNaN(n)) return n.toFixed(2).replace('.', ','); }
+  const n = parseFloat(s);
+  if (!isNaN(n)) return n.toFixed(2).replace('.', ',');
   return s;
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Separação de linhas por CRLF (Uint8Array)
+// Separação CRLF
 // ═══════════════════════════════════════════════════════════════
 function splitLinesBytesCRLF(allBytes) {
-  const lines = [];
-  let start = 0;
+  const lines = []; let start = 0;
   for (let i = 0; i < allBytes.length; i++) {
     if (i < allBytes.length - 1 && allBytes[i] === 0x0D && allBytes[i+1] === 0x0A) {
-      lines.push(allBytes.slice(start, i));
-      i++;
-      start = i + 1;
+      lines.push(allBytes.slice(start, i)); i++; start = i + 1;
     }
   }
   if (start < allBytes.length) lines.push(allBytes.slice(start));
@@ -619,14 +1008,14 @@ function splitLinesBytesCRLF(allBytes) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Carrega DE/PARA de arquivo Excel (.xlsx)
+// DE/PARA
 // ═══════════════════════════════════════════════════════════════
 async function loadDeParaExcel(file) {
-  const buf  = await readFileAsBuffer(file);
-  const wb   = XLSX.read(buf, { type: 'array', cellText: true, cellNF: false });
-  const ws   = wb.Sheets[wb.SheetNames[0]];
+  const buf = await readFileAsBuffer(file);
+  const wb  = XLSX.read(buf, { type: 'array', cellText: true, cellNF: false });
+  const ws  = wb.Sheets[wb.SheetNames[0]];
   const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-  const map  = new Map();
+  const map = new Map();
   for (const row of rows) {
     const dom = toDigits(String(row[0] ?? ''));
     const cli = toDigits(String(row[2] ?? ''));
@@ -634,17 +1023,10 @@ async function loadDeParaExcel(file) {
   }
   return map;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// Carrega DE/PARA de arquivo CSV
-// ═══════════════════════════════════════════════════════════════
 async function loadDeParaCSV(file) {
   let text = '';
-  try {
-    text = await readFileAsText(file, 'utf-8');
-  } catch {
-    text = await readFileAsText(file, 'windows-1252');
-  }
+  try { text = await readFileAsText(file, 'utf-8'); }
+  catch { text = await readFileAsText(file, 'windows-1252'); }
   if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
   const lines = text.split(/\r?\n/);
   const map   = new Map();
@@ -667,105 +1049,258 @@ function downloadFile(filename, content, mime) {
   const url  = URL.createObjectURL(blob);
   const a    = document.createElement('a');
   a.href = url; a.download = filename;
-  document.body.appendChild(a);
-  a.click();
+  document.body.appendChild(a); a.click();
   setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Processamento PAGAMENTO
+// Helpers de processamento
 // ═══════════════════════════════════════════════════════════════
+function extrairValorEHistorico(lb) {
+  const c4Bytes = getSubBytes(lb, 117, 132);
+  let c4raw = bytesToString1252(c4Bytes).trim();
+  let c4ext = c4raw, pulou133 = false;
+  const nb = lb.length >= 133 ? lb[132] : null;
+  if (c4raw.includes('.')) {
+    const ad = c4raw.split('.')[1];
+    if (ad.length < 2 && nb !== null && /^\d$/.test(String.fromCharCode(nb))) {
+      c4ext = c4raw + String.fromCharCode(nb); pulou133 = true;
+    }
+  }
+  const c4 = c4ext.replace(/^\s*0+/, '').replace('.', ',');
+  const startC5 = pulou133 ? 134 : 133;
+  let c5 = '';
+  if (lb.length >= startC5) {
+    const s = bytesToString1252(getSubBytes(lb, startC5, lb.length)).trimEnd();
+    if (s.trim()) c5 = s;
+  }
+  return { c4, c5 };
+}
+
+function extrairDebitoBruto(lb) {
+  const debitoRaw = toDigits(bytesToString1252(getSubBytes(lb, 74, 87)));
+  if (debitoEhVazioOuZero(debitoRaw)) return '';
+  return debitoRaw;
+}
+
 function processarLinhaPagamento(rawBytes, mapDePara) {
   if (!rawBytes || rawBytes.length === 0) return '';
   const lb      = to1252LineBytes(rawBytes);
   const dataOut = formatDataDDMMAAAA(bytesToString1252(getSubBytes(lb, 13, 20)));
-  const c2      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 74, 87))), mapDePara);
-  const c3      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 93, 97))), mapDePara);
-  const c4Bytes = getSubBytes(lb, 117, 132);
-  let c4raw = bytesToString1252(c4Bytes).trim();
-  let c4ext = c4raw; let pulou133 = false;
-  const nb = lb.length >= 133 ? lb[132] : null;
-  if (c4raw.includes('.')) {
-    const ad = c4raw.split('.')[1];
-    if (ad.length < 2 && nb !== null && /^\d$/.test(String.fromCharCode(nb))) {
-      c4ext = c4raw + String.fromCharCode(nb); pulou133 = true;
-    }
-  }
-  const c4 = c4ext.replace(/^\s*0+/, '').replace('.', ',');
-  const startC5 = pulou133 ? 134 : 133;
-  let c5 = '';
-  if (lb.length >= startC5) {
-    const s = bytesToString1252(getSubBytes(lb, startC5, lb.length)).trimEnd();
-    if (s.trim()) c5 = s;
-  }
+  const debitoRaw = toDigits(bytesToString1252(getSubBytes(lb, 74, 87)));
+  const c2 = debitoEhVazioOuZero(debitoRaw) ? '' : aplicarDePara(debitoRaw, mapDePara);
+  const c3 = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 93, 97))), mapDePara);
+  const { c4, c5 } = extrairValorEHistorico(lb);
   return `${dataOut};${c2};${c3};${c4};;${c5 ? c5 + ';' : ''}1`;
 }
-
-// ═══════════════════════════════════════════════════════════════
-// Processamento RECEBIMENTO
-// ═══════════════════════════════════════════════════════════════
+function processarLinhaPagamentoAltDebito(rawBytes, mapDePara) {
+  if (!rawBytes || rawBytes.length === 0) return '';
+  const lb      = to1252LineBytes(rawBytes);
+  const dataOut = formatDataDDMMAAAA(bytesToString1252(getSubBytes(lb, 13, 20)));
+  const c2 = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 69, 73))), mapDePara);
+  const c3 = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 93, 97))), mapDePara);
+  const { c4, c5 } = extrairValorEHistorico(lb);
+  return `${dataOut};${c2};${c3};${c4};;${c5 ? c5 + ';' : ''}1`;
+}
 function processarLinhaRecebimento(rawBytes, mapDePara) {
   if (!rawBytes || rawBytes.length === 0) return '';
   const lb      = to1252LineBytes(rawBytes);
   const dataOut = formatDataDDMMAAAA(bytesToString1252(getSubBytes(lb, 13, 20)));
-  const c2      = aplicarDePara(removeLeadingZeros(toDigits(bytesToString1252(getSubBytes(lb, 66, 73)))), mapDePara);
-  const c3      = aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 98, 111))), mapDePara);
-  const c4Bytes = getSubBytes(lb, 117, 132);
-  let c4raw = bytesToString1252(c4Bytes).trim();
-  let c4ext = c4raw; let pulou133 = false;
-  const nb = lb.length >= 133 ? lb[132] : null;
-  if (c4raw.includes('.')) {
-    const ad = c4raw.split('.')[1];
-    if (ad.length < 2 && nb !== null && /^\d$/.test(String.fromCharCode(nb))) {
-      c4ext = c4raw + String.fromCharCode(nb); pulou133 = true;
-    }
-  }
-  const c4 = c4ext.replace(/^\s*0+/, '').replace('.', ',');
-  const startC5 = pulou133 ? 134 : 133;
-  let c5 = '';
-  if (lb.length >= startC5) {
-    const s = bytesToString1252(getSubBytes(lb, startC5, lb.length)).trimEnd();
-    if (s.trim()) c5 = s;
-  }
+  const c2 = aplicarDePara(removeLeadingZeros(toDigits(bytesToString1252(getSubBytes(lb, 66, 73)))), mapDePara);
+  const creditoRaw98 = toDigits(bytesToString1252(getSubBytes(lb, 98, 111)));
+  const c3 = creditoRaw98
+    ? aplicarDePara(creditoRaw98, mapDePara)
+    : aplicarDePara(toDigits(bytesToString1252(getSubBytes(lb, 93, 97))), mapDePara);
+  const { c4, c5 } = extrairValorEHistorico(lb);
   return `${dataOut};${c2};${c3};${c4};;${c5 ? c5 + ';' : ''}1`;
 }
 
 // ═══════════════════════════════════════════════════════════════
 // Executar PAGAMENTO / RECEBIMENTO
-//
-// ★ ALTERADO: após splitLinesBytesCRLF, aplica linhaComecaComLC()
-//   para descartar linhas que NÃO começam com "LC".
-//   O contador de ignoradas é exibido na mensagem de sucesso
-//   para dar transparência ao usuário.
 // ═══════════════════════════════════════════════════════════════
 async function executar(tab) {
   clearStatus(tab);
+  resetDescartados(tab);
+  ocultarBotoesDl(tab);
+  resultadoStore[tab].pag = null;
+  resultadoStore[tab].rec = null;
+
+  const logWrap  = document.getElementById(`${tab}-log-wrap`);
+  const logTbody = document.getElementById(`${tab}-log-tbody`);
+  const logBody  = document.getElementById(`${tab}-log-body`);
+  logWrap.classList.remove('visible');
+  logTbody.innerHTML = '';
+  logBody.classList.remove('open');
+  const toggleEl = document.getElementById(`${tab}-log-toggle`);
+  if (toggleEl) toggleEl.textContent = '▼ Expandir';
+
   const s   = state[tab];
   const btn = document.getElementById(`${tab}-exec-btn`);
   if (!s.origemFile) { showStatus(tab, '⚠️ Informe o arquivo TXT de origem.', 'error'); return; }
   if (!s.planoFile)  { showStatus(tab, '⚠️ Informe a planilha Excel do plano (DE/PARA).', 'error'); return; }
+
   btn.disabled = true;
   btn.innerHTML = '<span class="spinner"></span>Processando...';
   showStatus(tab, '⏳ Carregando planilha e processando linhas...', 'info');
+
   try {
     const mapDePara   = await loadDeParaExcel(s.planoFile);
     const bufOrigem   = await readFileAsBuffer(s.origemFile);
     const allBytes    = new Uint8Array(bufOrigem);
     const todasLinhas = splitLinesBytesCRLF(allBytes);
-
-    // ── Filtra apenas linhas que começam com "LC" ─────────────
     const linhasLC    = todasLinhas.filter(lb => linhaComecaComLC(lb));
     const ignoradas   = todasLinhas.length - linhasLC.length;
-    // ─────────────────────────────────────────────────────────
 
-    const fn    = tab === 'pag' ? processarLinhaPagamento : processarLinhaRecebimento;
-    const saida = linhasLC.map(lb => fn(lb, mapDePara));
-    const nome  = tab === 'pag' ? 'PAGAMENTO.txt' : 'RECEBIMENTO.txt';
-    downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
+    const isPag         = tab === 'pag';
+    const nomePrincipal = isPag ? 'PAGAMENTO'   : 'RECEBIMENTO';
+    const nomeFallback  = isPag ? 'RECEBIMENTO' : 'PAGAMENTO';
+    const fnPrincipal   = isPag ? processarLinhaPagamento   : processarLinhaRecebimento;
+    const fnFallback    = isPag ? processarLinhaRecebimento : processarLinhaPagamento;
+
+    const saidaPag = [], saidaRec = [];
+    let cntOk = 0, cntRec5dig = 0, cntAltDeb = 0, cntFallback = 0, cntDescarte = 0;
+    const logEntries = [];
+
+    for (let i = 0; i < linhasLC.length; i++) {
+      const lb = linhasLC[i];
+      const linhaPrincipal  = fnPrincipal(lb, mapDePara);
+      const validPrincipal  = validarLinha(linhaPrincipal);
+
+      if (isPag) {
+        const debitoBruto = extrairDebitoBruto(lb);
+        if (debitoFinalTem5Digitos(debitoBruto)) {
+          const linhaRec5  = processarLinhaRecebimento(lb, mapDePara);
+          const validRec5  = validarLinha(linhaRec5);
+          if (validRec5.valido) {
+            saidaRec.push(linhaRec5); cntRec5dig++;
+            logEntries.push({ num: i+1, resultado: 'REC-5DIG', tipo: 'RECEBIMENTO',
+              obs: `Débito bruto "${debitoBruto}" tem 5 dígitos → RECEBIMENTO.txt` });
+          } else {
+            cntDescarte++;
+            descartadosStore[tab].push({
+              num: i+1,
+              linhaOriginal: bytesToString1252(to1252LineBytes(lb)),
+              motivoPrincipal: `Débito bruto "${debitoBruto}" tem 5 dígitos → redirecionado para RECEBIMENTO`,
+              motivoAltDebito: null,
+              motivoFallback:  validRec5.motivo
+            });
+            logEntries.push({ num: i+1, resultado: 'DESCARTADA', tipo: '—',
+              obs: `Débito bruto 5 dígitos → RECEBIMENTO falhou: ${validRec5.motivo}` });
+          }
+          continue;
+        }
+      }
+
+      if (validPrincipal.valido) {
+        isPag ? saidaPag.push(linhaPrincipal) : saidaRec.push(linhaPrincipal);
+        cntOk++;
+        logEntries.push({ num: i+1, resultado: 'OK', tipo: nomePrincipal, obs: '' });
+        continue;
+      }
+
+      let resolvidoAltDeb = false, motivoAltDebFalha = null;
+      if (isPag && validPrincipal.motivo === 'DÉBITO vazio') {
+        const linhaAlt    = processarLinhaPagamentoAltDebito(lb, mapDePara);
+        const validAlt    = validarLinha(linhaAlt);
+        const debitoAltBruto = toDigits(bytesToString1252(getSubBytes(to1252LineBytes(lb), 69, 73)));
+        if (validAlt.valido && debitoFinalTem5Digitos(debitoAltBruto)) {
+          const linhaRec5alt = processarLinhaRecebimento(lb, mapDePara);
+          const validRec5alt = validarLinha(linhaRec5alt);
+          if (validRec5alt.valido) {
+            saidaRec.push(linhaRec5alt); cntRec5dig++; resolvidoAltDeb = true;
+            logEntries.push({ num: i+1, resultado: 'REC-5DIG', tipo: 'RECEBIMENTO',
+              obs: `Débito alt. bruto (col.69–73) "${debitoAltBruto}" tem 5 dígitos → RECEBIMENTO.txt` });
+          } else {
+            motivoAltDebFalha = `Débito alt. bruto "${debitoAltBruto}" tem 5 dígitos → RECEBIMENTO falhou: ${validRec5alt.motivo}`;
+          }
+        } else if (validAlt.valido) {
+          saidaPag.push(linhaAlt); cntAltDeb++; resolvidoAltDeb = true;
+          logEntries.push({ num: i+1, resultado: 'ALT-DEB', tipo: 'PAGAMENTO',
+            obs: 'Débito col.74–87 vazio/zero → resolvido via col.69–73 → PAGAMENTO.txt' });
+        } else {
+          motivoAltDebFalha = validAlt.motivo;
+        }
+      }
+      if (resolvidoAltDeb) continue;
+
+      const linhaFallback = fnFallback(lb, mapDePara);
+      const validFallback = validarLinha(linhaFallback);
+      if (validFallback.valido) {
+        isPag ? saidaRec.push(linhaFallback) : saidaPag.push(linhaFallback);
+        cntFallback++;
+        let obsLog = `Principal falhou: ${validPrincipal.motivo}`;
+        if (motivoAltDebFalha) obsLog += ` | Alt-débito falhou: ${motivoAltDebFalha}`;
+        obsLog += isPag ? ' → RECEBIMENTO.txt' : ' → PAGAMENTO.txt';
+        logEntries.push({ num: i+1, resultado: 'FALLBACK', tipo: nomeFallback, obs: obsLog });
+        continue;
+      }
+
+      cntDescarte++;
+      descartadosStore[tab].push({
+        num: i+1,
+        linhaOriginal:  bytesToString1252(to1252LineBytes(lb)),
+        motivoPrincipal: validPrincipal.motivo,
+        motivoAltDebito: motivoAltDebFalha || null,
+        motivoFallback:  validFallback.motivo
+      });
+      let obsDesc = `Principal: ${validPrincipal.motivo}`;
+      if (motivoAltDebFalha) obsDesc += ` | Alt-débito: ${motivoAltDebFalha}`;
+      obsDesc += ` | Fallback: ${validFallback.motivo}`;
+      logEntries.push({ num: i+1, resultado: 'DESCARTADA', tipo: '—', obs: obsDesc });
+    }
+
+    for (const entry of logEntries) {
+      const tagClass =
+        entry.resultado === 'OK'        ? 'tag-ok'      :
+        entry.resultado === 'REC-5DIG'  ? 'tag-rec5dig' :
+        entry.resultado === 'ALT-DEB'   ? 'tag-alt-deb' :
+        entry.resultado === 'FALLBACK'  ? 'tag-fallback' : 'tag-drop';
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td>${entry.num}</td><td class="${tagClass}">${entry.resultado}</td><td>${entry.tipo}</td><td>${entry.obs || '—'}</td>`;
+      logTbody.appendChild(tr);
+    }
+    if (logEntries.length > 0) logWrap.classList.add('visible');
+
+    if (cntDescarte > 0) {
+      document.getElementById(`${tab}-badge-desc`).textContent = cntDescarte;
+      document.getElementById(`${tab}-btn-descartados`).classList.add('visible');
+    }
+
+    if (saidaPag.length > 0) {
+      resultadoStore[tab].pag = saidaPag.join('\r\n');
+      document.getElementById(`${tab}-dl-pag-cnt`).textContent = saidaPag.length;
+      document.getElementById(`${tab}-dl-pag`).classList.add('visible');
+    }
+    if (saidaRec.length > 0) {
+      resultadoStore[tab].rec = saidaRec.join('\r\n');
+      document.getElementById(`${tab}-dl-rec-cnt`).textContent = saidaRec.length;
+      document.getElementById(`${tab}-dl-rec`).classList.add('visible');
+    }
+
+    const temProblema = cntDescarte > 0 || cntFallback > 0 || cntAltDeb > 0 || cntRec5dig > 0;
+    const tipo  = temProblema ? 'warning' : 'success';
+    const icone = temProblema ? '⚠️' : '✅';
+    let partes = [];
+    if (saidaPag.length > 0) partes.push(`<strong>PAGAMENTO</strong>: ${saidaPag.length} linha(s)`);
+    if (saidaRec.length > 0) partes.push(`<strong>RECEBIMENTO</strong>: ${saidaRec.length} linha(s)`);
+    const resumoArquivos = partes.length > 0 ? partes.join(' · ') : 'nenhuma linha gerada';
+    let detalhes = [];
+    if (cntOk > 0)       detalhes.push(`<span style="color:#256e38">✔ ${cntOk} OK</span>`);
+    if (cntRec5dig > 0)  detalhes.push(`<span style="color:#6a1b9a">↪ ${cntRec5dig} REC-5DIG</span>`);
+    if (cntAltDeb > 0)   detalhes.push(`<span style="color:#1565c0">🔄 ${cntAltDeb} ALT-DEB</span>`);
+    if (cntFallback > 0) detalhes.push(`<span style="color:#e65100">↩ ${cntFallback} FALLBACK</span>`);
+    if (cntDescarte > 0) detalhes.push(`<span style="color:#b71c1c">✖ ${cntDescarte} descartada(s)</span>`);
+    if (ignoradas > 0)   detalhes.push(`<span style="color:#888">⊘ ${ignoradas} sem LC</span>`);
+    let msgExtra = '';
+    if (saidaPag.length > 0 || saidaRec.length > 0)
+      msgExtra = ' — <em>clique nos botões acima para baixar</em>';
+    if (cntDescarte > 0)
+      msgExtra += ' · <em>"Descartados" para ver os rejeitados</em>';
     showStatus(tab,
-      `✅ <strong>${nome}</strong> gerado com sucesso! ` +
-      `(${saida.length} linha(s) processadas · ${ignoradas} ignorada(s) por não iniciarem com "LC")`,
-      'success');
+      `${icone} Processamento concluído · ${resumoArquivos}<br>` +
+      detalhes.join(' &nbsp;|&nbsp; ') + msgExtra,
+      tipo);
+
   } catch (err) {
     showStatus(tab, `❌ Erro: ${err.message}`, 'error');
     console.error(err);
@@ -776,20 +1311,13 @@ async function executar(tab) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// Identificação CPF / CNPJ
+// Extrair CPF/CNPJ
 // ═══════════════════════════════════════════════════════════════
 function identificarTipo(digits) {
-  if (digits.length === 14) {
-    const filial = digits.slice(8, 12);
-    if (filial.startsWith('000')) return 'CNPJ';
-  }
+  if (digits.length === 14 && digits.slice(8,12).startsWith('000')) return 'CNPJ';
   return 'CPF';
 }
-function normalizarDigitos(rawDigits) {
-  return identificarTipo(rawDigits) === 'CPF'
-    ? rawDigits.slice(-11)
-    : rawDigits;
-}
+function normalizarDigitos(d) { return identificarTipo(d) === 'CPF' ? d.slice(-11) : d; }
 function formatarCPF(d)  { return `${d.slice(0,3)}.${d.slice(3,6)}.${d.slice(6,9)}-${d.slice(9,11)}`; }
 function formatarCNPJ(d) { return `${d.slice(0,2)}.${d.slice(2,5)}.${d.slice(5,8)}/${d.slice(8,12)}-${d.slice(12,14)}`; }
 function formatarDocumento(digits, tipo) {
@@ -802,181 +1330,341 @@ function cmpDigits(a, b) {
   return a < b ? -1 : a > b ? 1 : 0;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// Extrair CPF/CNPJ
-//
-// ★ ALTERADO: aplica linhaComecaComLC() antes de processar
-//   cada linha, descartando as que não iniciam com "LC".
-//   O total de ignoradas aparece na mensagem de sucesso.
-// ═══════════════════════════════════════════════════════════════
 async function executarExtrair() {
-  clearStatus('cnpj');
-  resetPreview();
-  const s   = state.cnpj;
-  const btn = document.getElementById('cnpj-exec-btn');
+  clearStatus('cnpj'); resetPreview();
+  resultadoStore.cnpj.csv = null;
+  const dlBtn = document.getElementById('cnpj-dl-csv');
+  if (dlBtn) dlBtn.classList.remove('visible');
+
+  const s = state.cnpj, btn = document.getElementById('cnpj-exec-btn');
   if (!s.origemFile) { showStatus('cnpj', '⚠️ Informe o arquivo TXT de origem.', 'error'); return; }
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Processando...';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Processando...';
   showStatus('cnpj', '⏳ Lendo arquivo e extraindo documentos...', 'info');
   try {
-    const buf      = await readFileAsBuffer(s.origemFile);
-    const allBytes = new Uint8Array(buf);
+    const buf       = await readFileAsBuffer(s.origemFile);
+    const allBytes  = new Uint8Array(buf);
     const todasLinhas = splitLinesBytesCRLF(allBytes);
-
-    // ── Filtra apenas linhas que começam com "LC" ─────────────
     const linhasLC  = todasLinhas.filter(lb => linhaComecaComLC(lb));
     const ignoradas = todasLinhas.length - linhasLC.length;
-    // ─────────────────────────────────────────────────────────
-
     const seen = new Set();
-
     for (const lb of linhasLC) {
       if (!lb || lb.length === 0) continue;
-      const lineBytes   = to1252LineBytes(lb);
-      const seg         = getSubBytes(lineBytes, 74, 87);
-      const raw         = bytesToString1252(seg).trim();
-      const digits      = toDigits(raw);
+      const lineBytes = to1252LineBytes(lb);
+      const seg    = getSubBytes(lineBytes, 74, 87);
+      const raw    = bytesToString1252(seg).trim();
+      const digits = toDigits(raw);
       if (!digits || /^0+$/.test(digits)) continue;
-      const normalizado = normalizarDigitos(digits);
-      if (!normalizado || /^0+$/.test(normalizado)) continue;
-      seen.add(normalizado);
+      const norm = normalizarDigitos(digits);
+      if (!norm || /^0+$/.test(norm)) continue;
+      seen.add(norm);
     }
-
     if (seen.size === 0) {
       showStatus('cnpj', '⚠️ Nenhum documento encontrado nas colunas 74–87 das linhas "LC".', 'error');
       btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
     }
-
     const cpfs = [], cnpjs = [];
-    for (const digits of seen) {
-      identificarTipo(digits) === 'CNPJ' ? cnpjs.push(digits) : cpfs.push(digits);
-    }
-    cpfs.sort(cmpDigits);
-    cnpjs.sort(cmpDigits);
-
-    const todos = [
-      ...cpfs.map(d  => ({ digits: d, tipo: 'CPF'  })),
-      ...cnpjs.map(d => ({ digits: d, tipo: 'CNPJ' }))
-    ];
-
+    for (const d of seen) identificarTipo(d) === 'CNPJ' ? cnpjs.push(d) : cpfs.push(d);
+    cpfs.sort(cmpDigits); cnpjs.sort(cmpDigits);
+    const todos = [...cpfs.map(d => ({ digits: d, tipo: 'CPF' })), ...cnpjs.map(d => ({ digits: d, tipo: 'CNPJ' }))];
     const csvLinhas = ['TIPO;NUMERO;FORMATADO'];
-    for (const item of todos) {
-      csvLinhas.push(`${item.tipo};${item.digits};${formatarDocumento(item.digits, item.tipo)}`);
-    }
+    for (const item of todos) csvLinhas.push(`${item.tipo};${item.digits};${formatarDocumento(item.digits, item.tipo)}`);
 
     const previewBody = document.getElementById('cnpj-preview-body');
-    let previewCount = 0, lastTipo = null;
+    let cnt = 0, lastTipo = null;
     for (const item of todos) {
-      if (previewCount >= 100) break;
+      if (cnt >= 100) break;
       if (lastTipo !== null && item.tipo !== lastTipo) {
-        const sep = document.createElement('tr');
-        sep.className = 'divider-row';
-        sep.innerHTML = `<td colspan="4">── CNPJs ──</td>`;
-        previewBody.appendChild(sep);
+        const sep = document.createElement('tr'); sep.className = 'divider-row';
+        sep.innerHTML = '<td colspan="4">── CNPJs ──</td>'; previewBody.appendChild(sep);
       }
       lastTipo = item.tipo;
       const fmt = formatarDocumento(item.digits, item.tipo);
       const tr  = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${previewCount + 1}</td>
-        <td class="${item.tipo === 'CPF' ? 'type-cpf' : 'type-cnpj'}">${item.tipo}</td>
-        <td>${item.digits}</td>
-        <td>${fmt}</td>`;
-      previewBody.appendChild(tr);
-      previewCount++;
+      tr.innerHTML = `<td>${cnt+1}</td><td class="${item.tipo==='CPF'?'type-cpf':'type-cnpj'}">${item.tipo}</td><td>${item.digits}</td><td>${fmt}</td>`;
+      previewBody.appendChild(tr); cnt++;
     }
-
     document.getElementById('badge-cpf').textContent   = `CPF: ${cpfs.length}`;
     document.getElementById('badge-cnpj').textContent  = `CNPJ: ${cnpjs.length}`;
     document.getElementById('badge-total').textContent = `Total: ${todos.length}`;
     document.getElementById('cnpj-summary').style.display = 'flex';
     document.getElementById('cnpj-preview-wrap').classList.add('visible');
 
-    const nomeCSV    = document.getElementById('cnpj-destino-name').value || 'CPF_CNPJ_EXTRAIDOS.csv';
     const csvContent = '\uFEFF' + csvLinhas.join('\r\n');
-    downloadFile(nomeCSV, csvContent, 'text/csv;charset=utf-8');
+    resultadoStore.cnpj.csv = csvContent;
+    document.getElementById('cnpj-dl-csv-cnt').textContent = todos.length;
+    document.getElementById('cnpj-dl-csv').classList.add('visible');
 
-    const avisoPreview = todos.length > 100
-      ? ` <em>(preview limitado a 100 de ${todos.length})</em>` : '';
+    const aviso = todos.length > 100 ? ` <em>(preview limitado a 100 de ${todos.length})</em>` : '';
     showStatus('cnpj',
-      `✅ <strong>${nomeCSV}</strong> gerado! ` +
-      `${cpfs.length} CPF(s) · ${cnpjs.length} CNPJ(s) · sem duplicatas · ` +
-      `${ignoradas} linha(s) ignorada(s) por não iniciarem com "LC".${avisoPreview}`,
+      `✅ Pronto! ${cpfs.length} CPF(s) · ${cnpjs.length} CNPJ(s) · sem duplicatas · ` +
+      `${ignoradas} linha(s) ignorada(s) sem "LC". Clique em <strong>⬇ CSV</strong> para baixar.${aviso}`,
       'success');
   } catch (err) {
-    showStatus('cnpj', `❌ Erro: ${err.message}`, 'error');
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '▶ Executar';
-  }
+    showStatus('cnpj', `❌ Erro: ${err.message}`, 'error'); console.error(err);
+  } finally { btn.disabled = false; btn.innerHTML = '▶ Executar'; }
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  ★  FOLHA — lógica principal (sem alterações — lê Excel, não TXT)
+// FOLHA
 // ═══════════════════════════════════════════════════════════════
 async function executarFolha() {
   clearStatus('folha');
-  const s   = state.folha;
-  const btn = document.getElementById('folha-exec-btn');
+  resultadoStore.folha.folha = null;
+  const dlBtn = document.getElementById('folha-dl-btn');
+  if (dlBtn) dlBtn.classList.remove('visible');
 
+  const s = state.folha, btn = document.getElementById('folha-exec-btn');
   if (!s.origemFile) { showStatus('folha', '⚠️ Informe o arquivo Excel de origem.', 'error'); return; }
   if (!s.planoFile)  { showStatus('folha', '⚠️ Informe o arquivo CSV do plano (DE/PARA).', 'error'); return; }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span>Processando...';
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>Processando...';
   showStatus('folha', '⏳ Carregando arquivos e processando linhas...', 'info');
-
   try {
     const mapDePara = await loadDeParaCSV(s.planoFile);
-
     const buf = await readFileAsBuffer(s.origemFile);
-    const wb  = XLSX.read(buf, {
-      type:      'array',
-      cellDates: true,
-      cellNF:    false,
-      cellText:  false
-    });
-    const ws   = wb.Sheets[wb.SheetNames[0]];
+    const wb  = XLSX.read(buf, { type: 'array', cellDates: true, cellNF: false, cellText: false });
+    const ws  = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
-
-    const saida        = [];
-    let   linhasValidas = 0;
-
+    const saida = []; let linhasValidas = 0;
     for (let i = 4; i < rows.length; i++) {
       const row = rows[i];
-      const temConteudo = row.some(c => c !== '' && c !== null && c !== undefined);
-      if (!temConteudo) continue;
-
-      const data    = formatarData(row[1] ?? '');
-      const cDepara = aplicarDePara(toDigits(String(row[2] ?? '')), mapDePara);
-      const fDepara = aplicarDePara(toDigits(String(row[5] ?? '')), mapDePara);
-      const colK    = formatarValorBR(row[10] ?? '');
-      const colJ    = String(row[9] ?? '').trim();
-
+      if (!row.some(c => c !== '' && c !== null && c !== undefined)) continue;
+      const data     = formatarData(row[1] ?? '');
+      const cDepara  = aplicarDePara(toDigits(String(row[2] ?? '')), mapDePara);
+      const fDepara  = aplicarDePara(toDigits(String(row[5] ?? '')), mapDePara);
+      const colK     = formatarValorBR(row[10] ?? '');
+      const colJ     = String(row[9] ?? '').trim();
       saida.push(`${data};${cDepara};${fDepara};${colK};;${colJ};1`);
       linhasValidas++;
     }
-
     if (linhasValidas === 0) {
       showStatus('folha', '⚠️ Nenhuma linha válida encontrada a partir da linha 5.', 'error');
       btn.disabled = false; btn.innerHTML = '▶ Executar'; return;
     }
-
-    const nome = document.getElementById('folha-destino-name').value || 'FOLHA.txt';
-    downloadFile(nome, saida.join('\r\n'), 'text/plain;charset=windows-1252');
-
+    resultadoStore.folha.folha = saida.join('\r\n');
+    document.getElementById('folha-dl-cnt').textContent = linhasValidas;
+    document.getElementById('folha-dl-btn').classList.add('visible');
     showStatus('folha',
-      `✅ <strong>${nome}</strong> gerado com sucesso! (${linhasValidas} linha(s) processadas)`,
+      `✅ Pronto! ${linhasValidas} linha(s) processadas. Clique em <strong>⬇ FOLHA.txt</strong> para baixar.`,
       'success');
-
   } catch (err) {
-    showStatus('folha', `❌ Erro: ${err.message}`, 'error');
-    console.error(err);
-  } finally {
-    btn.disabled = false;
-    btn.innerHTML = '▶ Executar';
+    showStatus('folha', `❌ Erro: ${err.message}`, 'error'); console.error(err);
+  } finally { btn.disabled = false; btn.innerHTML = '▶ Executar'; }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// CONSULTA CNPJ — estado isolado (prefixo "cc")
+// ═══════════════════════════════════════════════════════════════
+let ccDadosResultados = [];
+let ccTipoSelecionado = null;
+
+function ccSelecionarTipo(tipo) {
+  ccTipoSelecionado = tipo;
+  const btnC  = document.getElementById('cc-btnCliente');
+  const btnF  = document.getElementById('cc-btnFornecedor');
+  const badge = document.getElementById('cc-tipoBadge');
+  btnC.className = 'cc-tipo-btn';
+  btnF.className = 'cc-tipo-btn';
+  if (tipo === 'C') {
+    btnC.classList.add('sel-c');
+    badge.textContent = 'Coluna preenchida como "C"';
+    badge.className   = 'cc-tipo-badge cc-badge-c show';
+  } else {
+    btnF.classList.add('sel-f');
+    badge.textContent = 'Coluna preenchida como "F"';
+    badge.className   = 'cc-tipo-badge cc-badge-f show';
   }
+}
+
+function ccLimparCNPJ(raw)    { return raw.replace(/\D/g, ''); }
+function ccFormatarCNPJ(cnpj) {
+  if (cnpj.length === 11) return cnpj.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+  if (cnpj.length === 14) return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  return cnpj;
+}
+function ccFormatarMoeda(valor) {
+  if (!valor && valor !== 0) return '—';
+  return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+function ccFormatarData(dataStr) {
+  if (!dataStr) return '—';
+  const p = dataStr.split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataStr;
+}
+function ccFormatarCEP(cep) {
+  if (!cep) return '';
+  const c = cep.replace(/\D/g, '');
+  return c.length === 8 ? c.replace(/(\d{5})(\d{3})/, '$1-$2') : cep;
+}
+function ccBadgeSituacao(situacao) {
+  if (!situacao) return '<span class="cc-badge cc-badge-outro">—</span>';
+  const s = situacao.toUpperCase();
+  let cls = 'cc-badge-outro';
+  if      (s.includes('ATIVA'))    cls = 'cc-badge-ativa';
+  else if (s.includes('BAIXADA'))  cls = 'cc-badge-baixada';
+  else if (s.includes('INAPTA'))   cls = 'cc-badge-inapta';
+  else if (s.includes('SUSPENSA')) cls = 'cc-badge-suspensa';
+  return `<span class="cc-badge ${cls}">${situacao}</span>`;
+}
+function ccParsearCNPJs(texto) {
+  return texto.split(/[\n,;]+/)
+    .map(s => ccLimparCNPJ(s.trim()))
+    .filter(s => s.length > 0);
+}
+function ccSetStatus(msg) { document.getElementById('cc-status').textContent = msg; }
+
+async function ccConsultarCNPJ(cnpj, tentativa = 1) {
+  const ESPERA = [0, 4000, 8000];
+  await new Promise(r => setTimeout(r, ESPERA[tentativa - 1]));
+  try {
+    const resp = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${cnpj}`);
+    if ((resp.status === 429 || resp.status >= 500) && tentativa < 3) {
+      ccSetStatus(`⚠️ API sobrecarregada. Tentativa ${tentativa + 1}/3: ${ccFormatarCNPJ(cnpj)}...`);
+      return ccConsultarCNPJ(cnpj, tentativa + 1);
+    }
+    if (!resp.ok) {
+      const e = await resp.json().catch(() => ({}));
+      throw new Error(e.message || `HTTP ${resp.status}`);
+    }
+    return resp.json();
+  } catch (e) {
+    if (tentativa < 3 && (e.message === 'Failed to fetch' || e.name === 'TypeError')) {
+      ccSetStatus(`⚠️ Falha de rede. Tentativa ${tentativa + 1}/3: ${ccFormatarCNPJ(cnpj)}...`);
+      return ccConsultarCNPJ(cnpj, tentativa + 1);
+    }
+    throw e;
+  }
+}
+
+function ccAdicionarLinhaCarregando(tbody, index, cnpjFmt) {
+  const tr = document.createElement('tr');
+  tr.id = `cc-row-${index}`; tr.classList.add('cc-loading-row');
+  tr.innerHTML = `<td colspan="18"><span class="cc-spinner"></span> Consultando ${cnpjFmt}...</td>`;
+  tbody.appendChild(tr); return tr;
+}
+
+function ccPreencherLinha(tr, cnpjRaw, dados) {
+  const cnpjFmt  = ccFormatarCNPJ(cnpjRaw);
+  const cnaeDesc = dados.cnae_fiscal_descricao
+    ? `${dados.cnae_fiscal || ''} – ${dados.cnae_fiscal_descricao}`
+    : (dados.cnae_fiscal || '—');
+  const telefone = [dados.ddd_telefone_1, dados.ddd_telefone_2].filter(Boolean).join(' / ') || '—';
+  const tipoCls  = ccTipoSelecionado === 'C' ? 'cc-badge-tipo-c' : 'cc-badge-tipo-f';
+  tr.classList.remove('cc-loading-row');
+  tr.innerHTML = `
+    <td><span class="cc-badge ${tipoCls}">${ccTipoSelecionado || '—'}</span></td>
+    <td class="cc-cnpj-cell">${cnpjFmt}</td>
+    <td>${dados.razao_social || '—'}</td>
+    <td>${dados.nome_fantasia || '—'}</td>
+    <td>${ccBadgeSituacao(dados.descricao_situacao_cadastral || dados.situacao_cadastral)}</td>
+    <td>${ccFormatarData(dados.data_inicio_atividade)}</td>
+    <td title="${dados.cnae_fiscal_descricao || ''}">${cnaeDesc}</td>
+    <td>${dados.natureza_juridica || '—'}</td>
+    <td>${dados.porte || '—'}</td>
+    <td>${dados.uf || '—'}</td>
+    <td>${dados.municipio || '—'}</td>
+    <td>${dados.bairro || '—'}</td>
+    <td>${dados.logradouro || '—'}</td>
+    <td>${dados.numero || '—'}</td>
+    <td>${dados.complemento || '—'}</td>
+    <td>${ccFormatarCEP(dados.cep) || '—'}</td>
+    <td>${telefone}</td>
+    <td>${ccFormatarMoeda(dados.capital_social)}</td>`;
+}
+
+function ccPreencherLinhaErro(tr, cnpjRaw, mensagem) {
+  tr.classList.remove('cc-loading-row');
+  tr.innerHTML = `
+    <td>—</td>
+    <td class="cc-cnpj-cell">${ccFormatarCNPJ(cnpjRaw)}</td>
+    <td colspan="16"><span class="cc-badge cc-badge-erro">⚠ Erro após 3 tentativas: ${mensagem}</span></td>`;
+}
+
+async function ccConsultarTodos() {
+  if (!ccTipoSelecionado) { alert('Por favor, selecione o tipo: Cliente ou Fornecedor.'); return; }
+  const texto = document.getElementById('cc-cnpjInput').value.trim();
+  if (!texto) { alert('Por favor, insira ao menos um CNPJ.'); return; }
+  const cnpjs     = ccParsearCNPJs(texto);
+  const validos   = cnpjs.filter(c => c.length === 14);
+  const invalidos = cnpjs.filter(c => c.length !== 14 && c.length > 0);
+  if (validos.length === 0) { alert('Nenhum CNPJ válido encontrado (precisam ter 14 dígitos).'); return; }
+
+  ccDadosResultados = [];
+  const tbody = document.getElementById('cc-tabelaBody');
+  tbody.innerHTML = '';
+  const tableWrap   = document.getElementById('cc-tableWrap');
+  const exportarBtn = document.getElementById('cc-btnExportar');
+  const progressWrap = document.getElementById('cc-progressWrap');
+  const progressBar  = document.getElementById('cc-progressBar');
+
+  tableWrap.classList.add('visible');
+  exportarBtn.classList.remove('visible');
+  progressWrap.style.display = 'block';
+  progressBar.style.width    = '0%';
+
+  const btn = document.getElementById('cc-btnConsultar');
+  btn.disabled = true; btn.textContent = '⏳ Consultando...';
+
+  if (invalidos.length > 0)
+    ccSetStatus(`⚠ ${invalidos.length} CNPJ(s) ignorado(s) por ter número inválido de dígitos.`);
+
+  const rows = validos.map((cnpj, i) => ccAdicionarLinhaCarregando(tbody, i, ccFormatarCNPJ(cnpj)));
+  let concluidos = 0;
+
+  for (let i = 0; i < validos.length; i++) {
+    const cnpj = validos[i];
+    ccSetStatus(`Consultando ${i + 1} de ${validos.length}: ${ccFormatarCNPJ(cnpj)}`);
+    try {
+      const dados = await ccConsultarCNPJ(cnpj);
+      ccPreencherLinha(rows[i], cnpj, dados);
+      ccDadosResultados.push({ cnpj, dados, erro: null });
+    } catch (e) {
+      ccPreencherLinhaErro(rows[i], cnpj, e.message);
+      ccDadosResultados.push({ cnpj, dados: null, erro: e.message });
+    }
+    concluidos++;
+    progressBar.style.width = Math.round((concluidos / validos.length) * 100) + '%';
+    if (i < validos.length - 1) await new Promise(r => setTimeout(r, 1200));
+  }
+
+  ccSetStatus(`✅ Consulta finalizada! ${validos.length} CNPJ(s) processado(s).`);
+  exportarBtn.classList.add('visible');
+  btn.disabled = false; btn.textContent = '▶ Consultar';
+}
+
+function ccLimpar() {
+  document.getElementById('cc-cnpjInput').value = '';
+  document.getElementById('cc-tabelaBody').innerHTML = '';
+  document.getElementById('cc-tableWrap').classList.remove('visible');
+  document.getElementById('cc-btnExportar').classList.remove('visible');
+  document.getElementById('cc-progressWrap').style.display = 'none';
+  document.getElementById('cc-progressBar').style.width    = '0%';
+  ccSetStatus('');
+  ccDadosResultados  = [];
+  ccTipoSelecionado  = null;
+  document.getElementById('cc-btnCliente').className    = 'cc-tipo-btn';
+  document.getElementById('cc-btnFornecedor').className = 'cc-tipo-btn';
+  document.getElementById('cc-tipoBadge').className     = 'cc-tipo-badge';
+  document.getElementById('cc-tipoBadge').textContent   = '';
+}
+
+function ccExportarCSV() {
+  if (ccDadosResultados.length === 0) return;
+  const cab = ['Tipo','Razão Social','CPF/CNPJ','Inscrição Estadual','Inscrição Municipal',
+               'UF','Município','Bairro','Endereço','Número','Endereço','Complemento Endereço','CEP','Telefone'];
+  const linhas = ccDadosResultados.map(({ cnpj, dados }) => {
+    if (!dados) return [ccTipoSelecionado||'', '', ccFormatarCNPJ(cnpj),'','','','','','','','','','',''];
+    const tel = [dados.ddd_telefone_1, dados.ddd_telefone_2].filter(Boolean).join(' / ');
+    return [ccTipoSelecionado||'', dados.razao_social||'', ccFormatarCNPJ(cnpj), '','',
+            dados.uf||'', dados.municipio||'', dados.bairro||'', dados.logradouro||'',
+            dados.numero||'', dados.logradouro||'', dados.complemento||'',
+            ccFormatarCEP(dados.cep)||'', tel];
+  });
+  const csv  = [cab,...linhas].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(';')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url; a.download = `consulta_cnpj_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
 }
 </script>
 </body>
